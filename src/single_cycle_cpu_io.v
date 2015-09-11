@@ -3,19 +3,16 @@
   Computer Principles and Design in Verilog HDL
   by Yamin Li, published by A JOHN WILEY & SONS
 ************************************************/
-module single_cycle_cpu_io (clk,clrn,pc,inst,m_addr,d_f_mem,d_t_mem,write,
-                            io_rdn,io_wrn,rvram,wvram); // cpu kbd i/o
-    input  clk, clrn;                                   // clock and reset
+module CPU (clk,reset,pc,inst,Addr,Data_I,Data_O,WE,ACK,STB); // cpu kbd i/o
+    input  clk, reset;                                  // clock and reset
     input  [31:0] inst;                                 // instruction
-    input  [31:0] d_f_mem;                              // load data
+    input  [31:0] Data_I;                               // load data
+    input  ACK;
     output [31:0] pc;                                   // program counter
-    output [31:0] m_addr;                               // mem or i/o addr
-    output [31:0] d_t_mem;                              // store data
-    output        write;                                // data memory write
-    output        wvram;                                // vram write
-    output        rvram;                                // vram read
-    output        io_wrn;                               // i/o write
-    output        io_rdn;                               // i/o read
+    output [31:0] Addr;                                 // mem or i/o addr
+    output [31:0] Data_O;                               // store data
+    output WE;                                          // data memory write
+    output STB;
     // control signals
     reg           wreg;                                 // write regfile
     reg           wmem,rmem;                            // write/read memory
@@ -58,12 +55,13 @@ module single_cycle_cpu_io (clk,clrn,pc,inst,m_addr,d_f_mem,d_t_mem,write,
     wire i_jal  = (opcode == 6'h03);                    // jal
     // pc
     reg [31:0] pc;
-    always @ (posedge clk or negedge clrn) begin
-        if (!clrn) pc <= 0;
-        else         pc <= next_pc;
+    always @ (posedge clk or negedge reset) begin
+        if (!reset) pc <= 0;
+        // slave is not ready, you stay here
+        else pc <= ACK ? next_pc : pc;
     end
     // data written to register file
-    wire   [31:0] data_2_rf = i_lw ? d_f_mem : alu_out;
+    wire   [31:0] data_2_rf = i_lw ? Data_I : alu_out;
     // register file
     reg    [31:0] regfile [1:31];                       // $1 - $31
     wire   [31:0] a = (rs==0) ? 0 : regfile[rs];        // read port
@@ -73,20 +71,11 @@ module single_cycle_cpu_io (clk,clrn,pc,inst,m_addr,d_f_mem,d_t_mem,write,
             regfile[dest_rn] <= data_2_rf;              // write port
         end
     end
-    wire  io_space = alu_out[31] &                      // i/o space:
-                    ~alu_out[30] &                      // a0000000-bfffffff
-                     alu_out[29];
-    wire  vr_space = alu_out[31] &                      // vram space:
-                     alu_out[30] &                      // c0000000-dfffffff
-                    ~alu_out[29];
     // output signals
-    assign write   =   wmem & ~io_space & ~vr_space;    // data memory write
-    assign d_t_mem =   b;                               // data to store
-    assign m_addr  =   alu_out;                         // memory address
-    assign io_rdn  = ~(rmem & io_space);                // i/o read
-    assign io_wrn  = ~(wmem & io_space);                // i/o write
-    assign wvram   =   wmem & vr_space;                 // video ram write
-    assign rvram   =   rmem & vr_space;                 // video ram read
+    assign WE = wmem;    // data memory write
+    assign Data_O = b;                               // data to store
+    assign Addr = alu_out;                         // memory address
+    assign STB = rmem;
     // control signals, will be combinational circuit
     always @(*) begin
         alu_out = 0;                                    // alu output
@@ -165,5 +154,6 @@ module single_cycle_cpu_io (clk,clrn,pc,inst,m_addr,d_f_mem,d_t_mem,write,
                 next_pc = j_addr; end
             default: ;
         endcase
+        wreg = wreg & ACK;
     end
 endmodule
