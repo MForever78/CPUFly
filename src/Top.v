@@ -1,6 +1,8 @@
-module Top(clk, reset);
+module Top(clk, reset, Segment, AN);
     input clk;
     input reset;
+    output [7: 0] Segment;
+    output [3: 0] AN;
 
     // ========
     // Wishbone IO
@@ -23,6 +25,19 @@ module Top(clk, reset);
     wire seven_seg_STB = slave_STB[1];
     wire VGA_STB = slave_STB[2];
     wire Keyboard_STB = slave_STB[3];
+
+    // ========
+    // Instruction Memory
+    // 32 bit * 32768
+    // ========
+
+    wire [31: 0] pc;
+    wire [31: 0] inst;
+
+    Instruction_Memory (
+        .a(pc),
+        .spo(inst)
+    );
 
     CPU (
         .clk(clk),
@@ -61,7 +76,28 @@ module Top(clk, reset);
         .slave_ADDR(slave_ADDR)
     );
 
-    // Devices
-    
+    // ========
+    // Ram
+    // 32 bit * 16384
+    // ========
+
+    Ram (
+        .clka(clk),
+        .addra(slave_ADDR),
+        .dina(slave_DAT_I),
+        .wea(slave_WE),
+        .douta(Ram_DAT_O)
+    );
+
+    Seven_seg (
+        .clk(clk),
+        .DAT_I(slave_DAT_I),
+        .DAT_O(seven_seg_DAT_O),
+        .STB(seven_seg_STB),
+        .ACK(seven_seg_ACK),
+        .WE(slave_WE),
+        .Segment(Segment),
+        .AN(AN)
+    );
 
 endmodule
