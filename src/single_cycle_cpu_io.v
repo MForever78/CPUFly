@@ -3,7 +3,7 @@
   Computer Principles and Design in Verilog HDL
   by Yamin Li, published by A JOHN WILEY & SONS
 ************************************************/
-module CPU (clk,reset,pc,inst,Addr,Data_I,Data_O,WE,ACK,STB); // cpu kbd i/o
+module CPU (clk,reset,pc,inst,Addr,Data_I,Data_O,WE,ACK,STB,debug_next_pc); // cpu kbd i/o
     input  clk, reset;                                  // clock and reset
     input  [31:0] inst;                                 // instruction
     input  [31:0] Data_I;                               // load data
@@ -13,6 +13,8 @@ module CPU (clk,reset,pc,inst,Addr,Data_I,Data_O,WE,ACK,STB); // cpu kbd i/o
     output [31:0] Data_O;                               // store data
     output WE;                                          // data memory write
     output STB;
+    // debug signals
+    output [31: 0] debug_next_pc;
     // control signals
     reg           wreg;                                 // write regfile
     reg           wmem,rmem;                            // write/read memory
@@ -55,10 +57,15 @@ module CPU (clk,reset,pc,inst,Addr,Data_I,Data_O,WE,ACK,STB); // cpu kbd i/o
     wire i_jal  = (opcode == 6'h03);                    // jal
     // pc
     reg [31:0] pc;
-    always @ (posedge clk or negedge reset) begin
-        if (!reset) pc <= 0;
+    always @ (posedge clk or posedge reset) begin
+        if (reset) pc <= 0;
         // slave is not ready, you stay here
-        else pc <= ACK ? next_pc : pc;
+        else begin
+            if (STB)
+                pc <= ACK ? next_pc : pc;
+            else
+                pc <= next_pc;
+        end
     end
     // data written to register file
     wire   [31:0] data_2_rf = i_lw ? Data_I : alu_out;
@@ -75,7 +82,7 @@ module CPU (clk,reset,pc,inst,Addr,Data_I,Data_O,WE,ACK,STB); // cpu kbd i/o
     assign WE = wmem;    // data memory write
     assign Data_O = b;                               // data to store
     assign Addr = alu_out;                         // memory address
-    assign STB = rmem;
+    assign STB = rmem | wmem;
     // control signals, will be combinational circuit
     always @(*) begin
         alu_out = 0;                                    // alu output
@@ -154,6 +161,9 @@ module CPU (clk,reset,pc,inst,Addr,Data_I,Data_O,WE,ACK,STB); // cpu kbd i/o
                 next_pc = j_addr; end
             default: ;
         endcase
-        wreg = wreg & ACK;
+        wreg = STB ? wreg & ACK : wreg;
     end
+
+    // debug signals
+    assign debug_next_pc = next_pc;
 endmodule

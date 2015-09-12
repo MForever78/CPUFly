@@ -1,15 +1,16 @@
-module Seven_seg(clk, DAT_I, STB, DAT_O, ACK, WE, Segment, AN);
-    input clk;
-    input DAT_I;
+module Seven_seg(clk, reset, DAT_I, STB, DAT_O, ACK, WE, Segment, AN, debug_data_hold);
+    input clk, reset;
+    input [31: 0] DAT_I;
     input STB;
     input WE;
     output reg [3: 0] AN;
     output [7: 0] Segment;
     output [31: 0] DAT_O;
     output ACK;
+    output [15: 0] debug_data_hold;
 
     reg [7: 0] digit_seg, digit;
-    reg [16: 0] data_hold;
+    reg [15: 0] data_hold = 16'h2333;
     reg [31: 0] cnt = 0;
 
     wire [1: 0] scan;
@@ -25,10 +26,9 @@ module Seven_seg(clk, DAT_I, STB, DAT_O, ACK, WE, Segment, AN);
 
     assign Segment = digit_seg;
     assign DAT_O = Segment;
-    
-    always @* begin
-        if (STB) data_hold <= DAT_I;
-        else data_hold <= data_hold;
+
+    always @(posedge clk) begin
+        data_hold <= STB ? DAT_I : data_hold;
     end
 
     always @* begin
@@ -69,5 +69,8 @@ module Seven_seg(clk, DAT_I, STB, DAT_O, ACK, WE, Segment, AN);
             4'b1111: digit_seg = 8'b10001110;
         endcase
     end
+
+    // debug signal
+    assign debug_data_hold = data_hold;
 
 endmodule

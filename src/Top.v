@@ -1,8 +1,12 @@
-module Top(clk, reset, Segment, AN);
+module Top(clk, reset, Segment, AN, debug_inst, debug_pc, debug_CPU_DAT, debug_data_hold);
     input clk;
     input reset;
     output [7: 0] Segment;
     output [3: 0] AN;
+    output [31: 0] debug_inst;
+    output [31: 0] debug_pc;
+    output [31: 0] debug_CPU_DAT;
+    output [31: 0] debug_data_hold;
 
     // ========
     // Wishbone IO
@@ -34,14 +38,19 @@ module Top(clk, reset, Segment, AN);
     wire [31: 0] pc;
     wire [31: 0] inst;
 
-    Instruction_Memory (
-        .a(pc),
+    // debug signal
+    assign debug_inst = inst;
+    assign debug_pc = pc;
+    assign debug_CPU_DAT = CPU_Data_O;
+
+    Instruction_Memory im(
+        .a(pc >> 2),
         .spo(inst)
     );
 
-    CPU (
+    CPU cpu(
         .clk(clk),
-        .reset(rest),
+        .reset(reset),
         .inst(inst),
         .Data_I(CPU_Data_I),
         .pc(pc),
@@ -61,7 +70,7 @@ module Top(clk, reset, Segment, AN);
     assign slave_ACK = {11'b0, Keyboard_ACK, VGA_ACK, seven_seg_ACK, Ram_ACK};
     assign slave_DAT_O = {352'b0, Keyboard_DAT_O, VGA_DAT_O, seven_seg_DAT_O, Ram_DAT_O};
 
-    WB_intercon (
+    WB_intercon intercon(
         .master_STB(CPU_STB),
         .master_DAT_I(CPU_Data_O),
         .master_DAT_O(CPU_Data_I),
@@ -81,7 +90,7 @@ module Top(clk, reset, Segment, AN);
     // 32 bit * 16384
     // ========
 
-    Ram (
+    Ram ram(
         .clka(clk),
         .addra(slave_ADDR),
         .dina(slave_DAT_I),
@@ -89,15 +98,17 @@ module Top(clk, reset, Segment, AN);
         .douta(Ram_DAT_O)
     );
 
-    Seven_seg (
+    Seven_seg seven_seg(
         .clk(clk),
+        .reset(reset),
         .DAT_I(slave_DAT_I),
         .DAT_O(seven_seg_DAT_O),
         .STB(seven_seg_STB),
         .ACK(seven_seg_ACK),
         .WE(slave_WE),
         .Segment(Segment),
-        .AN(AN)
+        .AN(AN),
+        .debug_data_hold(debug_data_hold)
     );
 
 endmodule
