@@ -31,18 +31,13 @@ module Top_test;
 	// Outputs
 	wire [7:0] Segment;
 	wire [3:0] AN;
-    wire [31: 0] debug_pc, debug_inst, debug_CPU_DAT, debug_data_hold;
 
 	// Instantiate the Unit Under Test (UUT)
 	Top uut (
 		.clk(clk), 
 		.reset(reset), 
 		.Segment(Segment), 
-		.AN(AN),
-        .debug_pc(debug_pc),
-        .debug_inst(debug_inst),
-        .debug_CPU_DAT(debug_CPU_DAT),
-        .debug_data_hold(debug_data_hold)
+		.AN(AN)
 	);
 
 	initial begin
