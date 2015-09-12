@@ -1,6 +1,7 @@
 # Output products list for <Ram>
 Ram.asy
 Ram.gise
+Ram.mif
 Ram.ngc
 Ram.sym
 Ram.v
