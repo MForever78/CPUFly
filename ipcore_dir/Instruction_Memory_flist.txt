@@ -1,6 +1,7 @@
 # Output products list for <Instruction_Memory>
 Instruction_Memory.asy
 Instruction_Memory.gise
+Instruction_Memory.mif
 Instruction_Memory.ngc
 Instruction_Memory.sym
 Instruction_Memory.v

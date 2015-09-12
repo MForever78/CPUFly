@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 14.7
-# Date: Fri Sep 11 12:33:10 2015
+# Date: Sat Sep 12 06:03:59 2015
 #
 ##############################################################
 #
@@ -40,7 +40,7 @@ SELECT Distributed_Memory_Generator xilinx.com:ip:dist_mem_gen:7.2
 # END Select
 # BEGIN Parameters
 CSET ce_overrides=ce_overrides_sync_controls
-CSET coefficient_file=no_coe_file_loaded
+CSET coefficient_file=Z:\share\ISE\CPUFly\utils\test7seg.coe
 CSET common_output_ce=false
 CSET common_output_clk=false
 CSET component_name=Instruction_Memory
@@ -70,4 +70,4 @@ CSET sync_reset_qspo=false
 MISC pkg_timestamp=2012-11-21T20:07:40Z
 # END Extra information
 GENERATE
-# CRC: fe738d30
+# CRC: bb859e6a
