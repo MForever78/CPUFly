@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 14.7
-# Date: Sat Sep 12 09:03:58 2015
+# Date: Sat Sep 12 18:06:02 2015
 #
 ##############################################################
 #
@@ -46,7 +46,7 @@ CSET axi_id_width=4
 CSET axi_slave_type=Memory_Slave
 CSET axi_type=AXI4_Full
 CSET byte_size=9
-CSET coe_file=Z:\share\ISE\CPUFly\utils\testData.coe
+CSET coe_file=E:\Seafile\ISE\CPUFly\utils\testData.coe
 CSET collision_warnings=ALL
 CSET component_name=Ram
 CSET disable_collision_warnings=false
@@ -105,4 +105,4 @@ CSET write_width_b=32
 MISC pkg_timestamp=2012-11-19T16:22:25Z
 # END Extra information
 GENERATE
-# CRC: 6bba34f3
+# CRC: 9864a8bf
