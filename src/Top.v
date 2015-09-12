@@ -22,13 +22,14 @@ module Top(clk, reset, Segment, AN, debug_inst, debug_pc, debug_CPU_DAT, debug_d
     wire [511: 0] slave_DAT_O;
 
     // Slave members
-    wire Keyboard_ACK, VGA_ACK, seven_seg_ACK, Ram_ACK;
-    wire [31: 0] Keyboard_DAT_O, VGA_DAT_O, seven_seg_DAT_O, Ram_DAT_O;
+    wire Keyboard_ACK, VGA_ACK, seven_seg_ACK, Ram_ACK, Counter_ACK;
+    wire [31: 0] Keyboard_DAT_O, VGA_DAT_O, seven_seg_DAT_O, Ram_DAT_O, Counter_DAT_O;
 
     wire Ram_STB = slave_STB[0];
     wire seven_seg_STB = slave_STB[1];
     wire VGA_STB = slave_STB[2];
     wire Keyboard_STB = slave_STB[3];
+    wire Counter_STB = slave_STB[4];
 
     // ========
     // Instruction Memory
@@ -66,9 +67,10 @@ module Top(clk, reset, Segment, AN, debug_inst, debug_pc, debug_CPU_DAT, debug_d
     // 1: Seven seg
     // 2: VGA
     // 3: Keyboard
+    // 4: Counter
 
-    assign slave_ACK = {11'b0, Keyboard_ACK, VGA_ACK, seven_seg_ACK, Ram_ACK};
-    assign slave_DAT_O = {352'b0, Keyboard_DAT_O, VGA_DAT_O, seven_seg_DAT_O, Ram_DAT_O};
+    assign slave_ACK = {10'b0,Counter_ACK, Keyboard_ACK, VGA_ACK, seven_seg_ACK, Ram_ACK};
+    assign slave_DAT_O = {320'b0, Counter_DAT_O, Keyboard_DAT_O, VGA_DAT_O, seven_seg_DAT_O, Ram_DAT_O};
 
     WB_intercon intercon(
         .master_STB(CPU_STB),
@@ -109,6 +111,14 @@ module Top(clk, reset, Segment, AN, debug_inst, debug_pc, debug_CPU_DAT, debug_d
         .Segment(Segment),
         .AN(AN),
         .debug_data_hold(debug_data_hold)
+    );
+
+    Counter counter(
+        .clk(clk),
+        .reset(reset),
+        .DAT_O(Counter_DAT_O),
+        .STB(Counter_STB),
+        .ACK(Counter_ACK)
     );
 
 endmodule

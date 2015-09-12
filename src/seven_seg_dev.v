@@ -27,8 +27,9 @@ module Seven_seg(clk, reset, DAT_I, STB, DAT_O, ACK, WE, Segment, AN, debug_data
     assign Segment = digit_seg;
     assign DAT_O = Segment;
 
-    always @(posedge clk) begin
-        data_hold <= STB ? DAT_I : data_hold;
+    always @(posedge clk or posedge reset) begin
+        if (reset) data_hold <= 16'h2333;
+        else data_hold <= STB ? DAT_I : data_hold;
     end
 
     always @* begin
