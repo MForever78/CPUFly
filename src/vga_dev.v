@@ -1,15 +1,21 @@
-module Vga_dev(clk, hsync, vsync, VGA_R, VGA_G, VGA_B);
+module Vga_dev(clk, reset, hsync, vsync, VGA_R, VGA_G, VGA_B);
 // VGA 640*480 60Hz
 
-    input wire clk;
-    output wire vsync, hsync;
+    input clk;
+    input reset;
+    output vsync, hsync;
+    output [2: 0] VGA_R, VGA_G;
+    output [1: 0] VGA_B;
+
     wire [9: 0] x_ptr, y_ptr;
 
     reg [9: 0] x_cnt, y_cnt;
     reg [1: 0] cnt = 0;
+    wire [7: 0] color;
 
-    always @(posedge clk) begin
-        cnt <= cnt + 1;
+    always @(posedge clk or posedge reset) begin
+        if (reset) cnt <= 0;
+        else cnt <= cnt + 1;
     end
 
     parameter
@@ -28,10 +34,12 @@ module Vga_dev(clk, hsync, vsync, VGA_R, VGA_G, VGA_B);
     end
 
     always @(posedge cnt[1]) begin
-        if (y_cnt == VLINES - 1)
-            y_cnt <= 0;
-        else if (x_cnt == HPIXELS - 1)
-            y_cnt <= y_cnt + 1;
+        if (x_cnt == HPIXELS - 1) begin
+            if (y_cnt == VLINES - 1)
+                y_cnt <= 0;
+            else y_cnt <= y_cnt + 1;
+        end else
+            y_cnt <= y_cnt;
     end
 
     assign valid = (x_cnt > HBP) && (x_cnt < HFP) && (y_cnt > VBP) && (y_cnt < VFP);
@@ -41,5 +49,11 @@ module Vga_dev(clk, hsync, vsync, VGA_R, VGA_G, VGA_B);
 
     assign x_ptr = x_cnt - HBP;
     assign y_ptr = y_cnt - VBP;
+
+    assign color = valid ? x_ptr + y_ptr : 0;
+
+    assign VGA_R = color[7: 5];
+    assign VGA_G = color[4: 2];
+    assign VGA_B = color[1: 0];
 
 endmodule

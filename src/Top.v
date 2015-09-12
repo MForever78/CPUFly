@@ -1,8 +1,11 @@
-module Top(clk, reset, Segment, AN);
+module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync);
     input clk;
     input reset;
     output [7: 0] Segment;
     output [3: 0] AN;
+    output [2: 0] VGA_R, VGA_G;
+    output [1: 0] VGA_B;
+    output hsync, vsync;
 
     // ===========
     // Wishbone IO
@@ -117,6 +120,16 @@ module Top(clk, reset, Segment, AN);
         .DAT_O(Counter_DAT_O),
         .STB(Counter_STB),
         .ACK(Counter_ACK)
+    );
+
+    Vga_dev vga_dev(
+        .clk(clk),
+        .reset(reset),
+        .hsync(hsync),
+        .vsync(vsync),
+        .VGA_R(VGA_R),
+        .VGA_G(VGA_G),
+        .VGA_B(VGA_B)
     );
 
 endmodule
