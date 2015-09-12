@@ -36,7 +36,7 @@ module WB_intercon(master_STB, master_DAT_I, master_DAT_O, master_ACK, master_WE
 
     always @* begin
         slave_STB = 0;
-        slave_STB[master_ADDR[31: 28]] = 1;
+        slave_STB[master_ADDR[31: 28]] = master_STB;
     end
 
 endmodule

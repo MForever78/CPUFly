@@ -1,16 +1,12 @@
-module Top(clk, reset, Segment, AN, debug_inst, debug_pc, debug_CPU_DAT, debug_data_hold);
+module Top(clk, reset, Segment, AN);
     input clk;
     input reset;
     output [7: 0] Segment;
     output [3: 0] AN;
-    output [31: 0] debug_inst;
-    output [31: 0] debug_pc;
-    output [31: 0] debug_CPU_DAT;
-    output [31: 0] debug_data_hold;
 
-    // ========
+    // ===========
     // Wishbone IO
-    // ========
+    // ===========
 
     // Master
     wire CPU_STB, CPU_ACK, CPU_WE;
@@ -31,18 +27,13 @@ module Top(clk, reset, Segment, AN, debug_inst, debug_pc, debug_CPU_DAT, debug_d
     wire Keyboard_STB = slave_STB[3];
     wire Counter_STB = slave_STB[4];
 
-    // ========
+    // ==================
     // Instruction Memory
     // 32 bit * 32768
-    // ========
+    // ==================
 
     wire [31: 0] pc;
     wire [31: 0] inst;
-
-    // debug signal
-    assign debug_inst = inst;
-    assign debug_pc = pc;
-    assign debug_CPU_DAT = CPU_Data_O;
 
     Instruction_Memory im(
         .a(pc >> 2),
@@ -87,10 +78,16 @@ module Top(clk, reset, Segment, AN, debug_inst, debug_pc, debug_CPU_DAT, debug_d
         .slave_ADDR(slave_ADDR)
     );
 
-    // ========
+    // ==============
     // Ram
     // 32 bit * 16384
-    // ========
+    // ==============
+    
+    Ram_driver ram_driver(
+        .clk(clk),
+        .Ram_STB(Ram_STB),
+        .Ram_ACK(Ram_ACK)
+    );
 
     Ram ram(
         .clka(clk),
@@ -99,6 +96,7 @@ module Top(clk, reset, Segment, AN, debug_inst, debug_pc, debug_CPU_DAT, debug_d
         .wea(slave_WE),
         .douta(Ram_DAT_O)
     );
+    
 
     Seven_seg seven_seg(
         .clk(clk),
@@ -110,7 +108,7 @@ module Top(clk, reset, Segment, AN, debug_inst, debug_pc, debug_CPU_DAT, debug_d
         .WE(slave_WE),
         .Segment(Segment),
         .AN(AN),
-        .debug_data_hold(debug_data_hold)
+        .debug_data_hold(debug_Segment)
     );
 
     Counter counter(
