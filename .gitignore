@@ -61,9 +61,11 @@ _xmsgs/
 
 *.ini
 isim/
-Instruction_Memory.mif
-fuseRelaunch.cmd
-isim.cmd
-fuse.xmsgs
-CPU_test_isim_beh1.wdb
-Top_test_isim_beh.wdb
+*.mif
+*.cmd
+*.xmsgs
+*.wdb
+
+*.swo
+*.swp
+*.html
