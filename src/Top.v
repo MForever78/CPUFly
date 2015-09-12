@@ -32,7 +32,7 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync);
 
     // ==================
     // Instruction Memory
-    // 32 bit * 32768
+    // 32 bit * 16384
     // ==================
 
     wire [31: 0] pc;
@@ -122,14 +122,42 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync);
         .ACK(Counter_ACK)
     );
 
+    // =========
+    // VGA
+    // =========
+
+    wire [9: 0] x_ptr, y_ptr;
+    wire [7: 0] color;
+
+    Video_card video_card(
+        .x_ptr(x_ptr),
+        .y_ptr(y_ptr),
+        .color(color)
+    );
+
+    // 16 bit * 2400
+
+    //Video_Memory video_memory(
+    //    .a(slave_ADDR),
+    //    .d(slave_DAT_I),
+    //    .dpra(video_Addr),
+    //    .we(0),
+    //    .clk(clk),
+    //    .spo(VGA_DAT_O),
+    //    .dpo(video_DAT)
+    //);
+
     Vga_dev vga_dev(
         .clk(clk),
         .reset(reset),
         .hsync(hsync),
         .vsync(vsync),
+        .color(color),
         .VGA_R(VGA_R),
         .VGA_G(VGA_G),
-        .VGA_B(VGA_B)
+        .VGA_B(VGA_B),
+        .x_ptr(x_ptr),
+        .y_ptr(y_ptr)
     );
 
 endmodule
