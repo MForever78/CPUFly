@@ -50,8 +50,8 @@ Net "reset" LOC = B8 |IOSTANDARD = LVCMOS33; 	#reset
 #Net "BTN[4]" LOC = D9 |IOSTANDARD = LVCMOS33; 	# BTNR
 
 # Pic USB-HID interface
-#Net "PS2_Data" LOC = J13| IOSTANDARD = LVCMOS33; #Bank = 1, pin name = IO_L39P_M1A3, Sch name = PIC-SDI1
-#Net "PS2_clk" LOC = L12 | IOSTANDARD = LVCMOS33; #Bank = 1, pin name = IO_L40P_GCLK11_M1A5, Sch name = PIC-SCK1
+Net "kbd_data" LOC = J13 | PULLUP | IOSTANDARD = LVCMOS33; #Bank = 1, pin name = IO_L39P_M1A3, Sch name = PIC-SDI1
+Net "kbd_clk" LOC = L12 | PULLUP | IOSTANDARD = LVCMOS33; #Bank = 1, pin name = IO_L40P_GCLK11_M1A5, Sch name = PIC-SCK1
 
 # VGA Connector
 NET "VGA_R[0]" LOC = U7 | IOSTANDARD = LVCMOS33; 		# Bank = 2, pin name = IO_L43P, Sch name = RED0
