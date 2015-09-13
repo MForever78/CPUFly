@@ -1,11 +1,14 @@
-module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync);
+module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, kbd_data, LED);
     input clk;
     input reset;
+    input kbd_clk;
+    input kbd_data;
     output [7: 0] Segment;
     output [3: 0] AN;
     output [2: 0] VGA_R, VGA_G;
     output [1: 0] VGA_B;
     output hsync, vsync;
+    output [7: 0] LED;
 
     // ===========
     // Wishbone IO
@@ -110,8 +113,7 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync);
         .ACK(seven_seg_ACK),
         .WE(slave_WE),
         .Segment(Segment),
-        .AN(AN),
-        .debug_data_hold(debug_Segment)
+        .AN(AN)
     );
 
     Counter counter(
@@ -122,9 +124,9 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync);
         .ACK(Counter_ACK)
     );
 
-    // =========
+    // ===
     // VGA
-    // =========
+    // ===
 
     wire [9: 0] x_ptr, y_ptr;
     wire [7: 0] color;
@@ -132,20 +134,12 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync);
     Video_card video_card(
         .x_ptr(x_ptr),
         .y_ptr(y_ptr),
-        .color(color)
+        .color(color),
+        .DAT_I(slave_DAT_I),
+        .STB(VGA_STB),
+        .ACK(VGA_ACK),
+        .ADDR(slave_ADDR)
     );
-
-    // 16 bit * 2400
-
-    //Video_Memory video_memory(
-    //    .a(slave_ADDR),
-    //    .d(slave_DAT_I),
-    //    .dpra(video_Addr),
-    //    .we(0),
-    //    .clk(clk),
-    //    .spo(VGA_DAT_O),
-    //    .dpo(video_DAT)
-    //);
 
     Vga_dev vga_dev(
         .clk(clk),
@@ -159,5 +153,33 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync);
         .x_ptr(x_ptr),
         .y_ptr(y_ptr)
     );
+
+    // ==========
+    // Keyboard
+    // ==========
+
+    wire [7: 0] Keyboard_Data;
+    wire Keyboard_ready_pulse;
+
+    Keyboard_driver keyboard_driver(
+        .clk(clk),
+        .reset(reset),
+        .ready_pulse(Keyboard_ready_pulse),
+        .Keyboard_Data(Keyboard_Data),
+        .ACK(Keyboard_ACK),
+        .STB(Keyboard_STB),
+        .DAT_O(Keyboard_DAT_O)
+    );
+
+    Keyboard_dev keyboard(
+        .clk(clk),
+        .reset(reset),
+        .kbd_clk(kbd_clk),
+        .kbd_data(kbd_data),
+        .Keyboard_Data(Keyboard_Data),
+        .ready_pulse(Keyboard_ready_pulse)
+    );
+    
+    assign LED = Keyboard_Data;
 
 endmodule

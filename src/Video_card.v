@@ -1,6 +1,10 @@
-module Video_card(x_ptr, y_ptr, color);
-
+module Video_card(clk, reset, x_ptr, y_ptr, color, DAT_I, STB, ACK, ADDR);
+    input clk, reset;
     input [9: 0] x_ptr, y_ptr;
+    input [31: 0] DAT_I;
+    input STB;
+    input [31: 0] ADDR;
+    output reg ACK;
     output [7: 0] color;
 
     wire [9: 0] x_offset, y_offset;
@@ -13,7 +17,7 @@ module Video_card(x_ptr, y_ptr, color);
     wire [11: 0] Addr;
     wire [9: 0] x, y;
 
-    reg [15: 0] mem [0: 2399];
+    reg [15: 0] mem [0: 4799];
 
     initial begin
         mem[0] = 16'h004d;
@@ -26,6 +30,16 @@ module Video_card(x_ptr, y_ptr, color);
         mem[7] = 16'h0072;
         mem[8] = 16'h0037;
         mem[9] = 16'h0038;
+    end
+
+    always @(posedge clk) begin
+        // CPU wants to write
+        if (STB) begin
+            mem[ADDR] <= DAT_I;
+            ACK <= 1;
+        end else begin
+            ACK <= 0;
+        end
     end
 
     assign x = x_ptr >> 3;
