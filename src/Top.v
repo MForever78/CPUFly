@@ -132,6 +132,8 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
     wire [7: 0] color;
 
     Video_card video_card(
+        .clk(clk),
+        .reset(reset),
         .x_ptr(x_ptr),
         .y_ptr(y_ptr),
         .color(color),

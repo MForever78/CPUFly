@@ -32,6 +32,8 @@ module Video_card(clk, reset, x_ptr, y_ptr, color, DAT_I, STB, ACK, ADDR);
         mem[9] = 16'h0038;
     end
 
+    integer i;
+
     always @(posedge clk) begin
         // CPU wants to write
         if (STB) begin

@@ -90,8 +90,8 @@ module Keyboard_dev(clk, reset, kbd_clk, kbd_data, Keyboard_Data, ready_pulse);
   end
 
   always @(posedge clk) begin
-    ready_pulse = (last != 4'd10 && counter == 4'd10);
-    last = counter;
+    ready_pulse <= (last != 4'd10 && counter == 4'd10);
+    last <= counter;
   end
 
 endmodule

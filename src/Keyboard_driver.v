@@ -5,18 +5,26 @@ module Keyboard_driver(clk, reset, ready_pulse, Keyboard_Data, ACK, STB, DAT_O);
     input ready_pulse;
     input [7: 0] Keyboard_Data;
     input STB;
-    output reg ACK;
-    output reg [31: 0] DAT_O;
+    output ACK;
+    output [31: 0] DAT_O;
     
     reg [31: 0] data_hold = 0;
     reg [7: 0] data_cooked;
+    reg [23: 0] data_cnt = 0;
+    reg f0 = 0;
 
-    always @(posedge clk or posedge reset) begin
-        if (reset || (ACK && (data_hold != 0)))
-            data_hold <= 0;
+    assign DAT_O = {data_cooked, data_cnt};
+    assign ACK = STB;
+
+    always @(posedge ready_pulse) begin
+        if (Keyboard_Data == 8'hf0)
+            f0 <= 1;
         else begin
-            if (ready_pulse)
+            if (!f0) begin
                 data_hold <= Keyboard_Data;
+                data_cnt <= data_cnt + 1;
+            end else
+                f0 <= 0;
         end
     end
 
@@ -72,16 +80,6 @@ module Keyboard_driver(clk, reset, ready_pulse, Keyboard_Data, ACK, STB, DAT_O);
             8'h5A: data_cooked = 10;// Enter to '\n'
             default: data_cooked = 0;
         endcase
-    end
-
-    always @(posedge clk) begin
-        if (STB) begin
-            DAT_O <= data_cooked;
-            ACK <= 1;
-        end else begin
-            DAT_O <= 0;
-            ACK <= 0;
-        end
     end
     
 endmodule
