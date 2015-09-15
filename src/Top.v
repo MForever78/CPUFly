@@ -97,7 +97,7 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
 
     Ram ram(
         .clka(clk),
-        .addra(slave_ADDR),
+        .addra(slave_ADDR >> 2),
         .dina(slave_DAT_I),
         .wea(slave_WE),
         .douta(Ram_DAT_O)
@@ -140,7 +140,7 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
         .DAT_I(slave_DAT_I),
         .STB(VGA_STB),
         .ACK(VGA_ACK),
-        .ADDR(slave_ADDR)
+        .ADDR(slave_ADDR >> 2)
     );
 
     Vga_dev vga_dev(
