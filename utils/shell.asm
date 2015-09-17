@@ -125,6 +125,9 @@ print_char:
             lw      $t1, 0($t1)
             add     $t1, $t1, $s5           # t1 is the vram addr to write on
             sw      $t0, 0($t1)
+            la      $t1, SEG_ADDR
+            lw      $t1, 0($t1)             # t1 is the 7 seg addr
+            sw      $t0, 0($t1)             # write to 7 seg for debugging
             addi    $s5, $s5, 4
             addi    $s6, $s6, 4
             addi    $t1, $zero, 320
