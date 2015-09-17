@@ -27,8 +27,8 @@ print:      add     $t0, $zero, $a0         # t0 saves the string base addr
 print_loop:
             add     $s4, $s0, $s1           # s4 saves the current 4 chars addr
             lw      $s4, 0($s4)             # s4 loads the word data, waiting to be converted to byte
-            add     $s2, $s2, $zero         # s2 is the convert_loop variable
-            addi    $s3, $s3, 4             # s3 is the convert_loop limit
+            add     $s2, $zero, $zero       # s2 is the convert_loop variable
+            addi    $s3, $zero, 4           # s3 is the convert_loop limit
 convert_loop:
             beq     $s2, $s3, convert_done
             andi    $t0, $s4, 0xff          # load last 8 bit
