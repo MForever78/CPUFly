@@ -87,6 +87,7 @@ check_enter:
             bne     $t0, $t1, not_enter
             addi    $s5, $s5, 320           # move cursor down one line
             sub     $s5, $s5, $s6           # move the cursor to the very begining
+            add     $s6, $zero, $zero       # clear the line counter
             jal     print_hinter
             addi    $s0, $zero, 1           # tell caller true
             j       check_enter_return
@@ -96,7 +97,7 @@ not_enter:
 check_enter_return:
             add     $t0, $zero, $s0         # save return value to temp reg
             jal     pop
-            add     $s0, $zero, $a0         # recover s0
+            add     $s0, $zero, $v0         # recover s0
             jal     pop                     # get return address from stack
             add     $ra, $zero, $v0
             add     $v0, $zero, $t0         # set return value
