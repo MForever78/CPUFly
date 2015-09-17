@@ -63,8 +63,6 @@ print_hinter:
             la      $a0, shell_hinter       # load shell hinter string address
             add     $a1, $zero, $s5         # pass global cursor pointer
             jal     print
-            add     $s5, $zero, $v0         # update global cursor pointer
-            addi    $s6, $zero, 28          # update line counter
             jal     pop
             add     $ra, $zero, $v0         # pop return address
             jr      $ra
