@@ -79,21 +79,27 @@ pop:
             # Function: check if a0 is enter
 check_enter:
             add     $t0, $zero, $a0         # get the ASCii code
+            add     $a0, $zero, $ra         # save the return address
+            jal     push
+            add     $a0, $zero, $s0
+            jal     push                    # save s0 for later use
             addi    $t1, $zero, 10
             bne     $t0, $t1, not_enter
             addi    $s5, $s5, 320           # move cursor down one line
             sub     $s5, $s5, $s6           # move the cursor to the very begining
-            add     $a0, $zero, $ra         # save the return address
-            jal     push
             jal     print_hinter
-            addi    $v0, $zero, 1           # tell callee true
-            jal     pop                     # get return address from stack
-            add     $ra, $zero, $v0
+            addi    $s0, $zero, 1           # tell caller true
             j       check_enter_return
 not_enter:
-            add     $v0, $zero, $zero
+            add     $s0, $zero, $zero
             j       check_enter_return      # return explicityly
 check_enter_return:
+            add     $t0, $zero, $s0         # save return value to temp reg
+            jal     pop
+            add     $s0, $zero, $a0         # recover s0
+            jal     pop                     # get return address from stack
+            add     $ra, $zero, $v0
+            add     $v0, $zero, $t0         # set return value
             jr      $ra
 
             # Function: check if a0 is backspace
@@ -102,12 +108,15 @@ check_backspace:
             addi    $t1, $zero, 8
             bne     $t0, $t1, not_backspace
             addi    $t1, $zero, 28          # can't delete shell hinter
-            beq     $s6, $t1, check_backspace_return
+            beq     $s6, $t1, is_backspace  # skip it
             addi    $s6, $s6, -4
             addi    $s5, $s5, -4
-            addi    $t1, $zero, 32          # t1 is the space char used to empty the last char
-            add     $t2, $s5, $s2           # t2 is the vram addr
-            sw      $t1, 0($t2)
+            addi    $t0, $zero, 32          # t0 is the space char used to empty the last char
+            la      $t1, VGA_ADDR
+            lw      $t1, 0($t1)             # t1 is the vram base addr
+            add     $t1, $t1, $s5           # t1 is the to be written addr
+            sw      $t0, 0($t1)             # write the space to vram
+is_backspace:
             addi    $v0, $zero, 1
             j       check_backspace_return
 not_backspace:
@@ -145,7 +154,7 @@ wait_kbd:
             lw      $s2, 0($s0)             # s2 is the current keyboard value
             beq     $s1, $s2, wait_kbd
             add     $s1, $zero, $s2         # saves the old keyboard value
-            srl     $s2, $s2, 24                 # s2 is the ASCii code
+            srl     $s2, $s2, 24            # s2 is the ASCii code
             add     $a0, $zero, $s2         # pass ASCii code to function
             jal     check_enter
             bne     $v0, $zero, wait_kbd    # v0 == 0: not enter
