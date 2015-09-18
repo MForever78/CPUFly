@@ -85,6 +85,7 @@ check_enter:
             addi    $t1, $zero, 10
             bne     $t0, $t1, not_enter
             jal     clear_cursor
+            jal     check_command
             addi    $s5, $s5, 320           # move cursor down one line
             sub     $s5, $s5, $s6           # move the cursor to the very begining
             add     $s6, $zero, $zero       # clear the line counter
@@ -169,6 +170,62 @@ clear_cursor:
             addi    $t1, $zero, 0x20        # space ascii code
             sw      $t1, 0($t0)
             jr      $ra
+
+            # Function: check and execute commands
+check_command:
+            add     $a0, $zero, $ra
+            jal     push                    # save return address
+            jal     check_clear
+            addi    $t0, $zero, 0
+            bne     $v0, $t0, check_command_return  # v0 != 0: is clear
+            jal     undefined_command
+            j       check_command_return
+check_command_return:
+            jal     pop
+            add     $ra, $zero, $v0
+            jr      $ra
+
+            # Function: check clear command
+            # return: v0: 1 true 0 false
+check_clear:
+            add     $a0, $zero, $ra         # save return address
+            jal     push
+            add     $a0, $zero, $s0
+            jal     push
+            add     $a0, $zero, $s1
+            jal     push
+            add     $a0, clear_CMD          # pass the clear command address to function
+            jal     compare
+            beq     $v0, $zero, not_clear   # v0 == 0: not clear
+            add     $s0, $zero, $zero       # s0 is the loop variable
+            addi    $s1, $zero, 2400        # s1 is the loop limit
+            add     $s5, $zero, $zero       # reset cursor
+            add     $s6, $zero, $zero       # reset line counter
+clear_loop:
+            beq     $s0, $s1, clear_done
+            addi    $a0, $zero, 0x20        # space ascii code
+            jal     print_char
+            addi    $s0, $s0, 1
+            j       clear_loop
+clear_done:
+            add     $s5, $zero, $zero       # reset cursor
+            add     $s6, $zero, $zero       # reset line counter
+            addi    $v0, $zero, 1
+            j       check_clear_return
+not_clear:
+            add     $v0, $zero, $zero
+            j       check_clear_return
+check_clear_return:
+            add     $t0, $zero, $v0         # save return value to temp reg
+            jal     pop
+            add     $s1, $zero, $v0
+            jal     pop
+            add     $s0, $zero, $v0
+            jal     pop
+            add     $ra, $zero, $v0
+            add     $v0, $zero, $t0         # give back return value
+            jr      $ra
+
 main:
             # System init
             jal     print_hinter
@@ -201,3 +258,4 @@ VGA_ADDR:       .word 0x20000000
 KBD_ADDR:       .word 0x30000000
 CNT_ADDR:       .word 0x40000000
 shell_hinter:   .asciiz "MFsh > "
+clear_CMD:      .asciiz "clear"
