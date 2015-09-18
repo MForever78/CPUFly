@@ -171,6 +171,57 @@ clear_cursor:
             sw      $t1, 0($t0)
             jr      $ra
 
+            # Function: compare current input to string addr with a0
+compare:
+            la      $t0, VGA_ADDR
+            lw      $t0, 0($t0)             # t0 is the vram base addr
+            add     $t0, $t0, $s5           # t0 is the current cursor addr
+            sub     $t0, $t0, $s6           # t0 is the first char of current line
+            addi    $t0, $t0, 7             # skip shell hinter
+            add     $t1, $zero, $a0         # t1 is the string base addr
+            add     $t2, $zero, $zero       # t2 is the loop variable
+compare_loop:
+            add     $t1, $t1, $t2           # t1 is the current word addr of the string
+            lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
+            lw      $t4, 0($t1)             # t4 is the string word
+            andi    $t5, $t4, 0xff          # get char ascii code
+            beq     $t5, $zero, equal       # string always finish first
+            beq     $t5, $zero,
+            srl     $t4, $t4, 8
+            bne     $t3, $t5, not_equal
+            addi    $t0, $t0, 4             # move cursor forward
+            lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
+            lw      $t4, 0($t1)             # t4 is the string word
+            andi    $t5, $t4, 0xff          # get char ascii code
+            beq     $t5, $zero, equal       # string always finish first
+            srl     $t4, $t4, 8
+            bne     $t3, $t5, not_equal
+            addi    $t0, $t0, 4             # move cursor forward
+            lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
+            lw      $t4, 0($t1)             # t4 is the string word
+            andi    $t5, $t4, 0xff          # get char ascii code
+            beq     $t5, $zero, equal       # string always finish first
+            srl     $t4, $t4, 8
+            bne     $t3, $t5, not_equal
+            addi    $t0, $t0, 4             # move cursor forward
+            lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
+            lw      $t4, 0($t1)             # t4 is the string word
+            andi    $t5, $t4, 0xff          # get char ascii code
+            beq     $t5, $zero, equal       # string always finish first
+            srl     $t4, $t4, 8
+            bne     $t3, $t5, not_equal
+            addi    $t0, $t0, 4             # move cursor forward
+            addi    $t2, $t2, 4             # move string addr forward
+            j       compare_loop
+equal:
+            addi    $v0, $zero, 1
+            j       compare_return
+not_equal:
+            add     $v0, $zero, $zero
+            j       compare_return
+compare_return:
+            jr      $ra
+
             # Function: check and execute commands
 check_command:
             add     $a0, $zero, $ra
