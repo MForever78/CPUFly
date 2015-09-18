@@ -61,7 +61,6 @@ print_hinter:
             add     $a0, $zero, $ra
             jal     push                    # save return address
             la      $a0, shell_hinter       # load shell hinter string address
-            add     $a1, $zero, $s5         # pass global cursor pointer
             jal     print
             jal     pop
             add     $ra, $zero, $v0         # pop return address
@@ -127,28 +126,32 @@ check_backspace_return:
             jr      $ra
 
             # Function: print single char
+            # param a0: ascii code to be printed
 print_char:
             add     $t0, $zero, $a0         # t0 is the char to be printed
             la      $t1, VGA_ADDR           # load VGA addr
             lw      $t1, 0($t1)
             add     $t1, $t1, $s5           # t1 is the vram addr to write on
-            sw      $t0, 0($t1)
+            sw      $t0, 0($t1)             # write to VGA
             la      $t1, SEG_ADDR
             lw      $t1, 0($t1)             # t1 is the 7 seg addr
             sw      $t0, 0($t1)             # write to 7 seg for debugging
             addi    $s5, $s5, 4
             addi    $s6, $s6, 4
-            addi    $t1, $zero, 320
+            addi    $t1, $zero, 320         # one line is full
             bne     $s6, $t1, print_char_end    # handle line counter
-            add     $s6, $zero, $zero
+            add     $s6, $zero, $zero       # clear line counter
             j       print_char_end
 print_char_end:
             jr      $ra
 main:
             # System init
             jal     print_hinter
-            la      $t0, KBD_ADDR
-            lw      $s0, 0($t0)             # s0 is the KBD_ADDR
+debug_dead_loop:
+            j       debug_dead_loop         # loop to figure out pc position
+            #la      $t0, KBD_ADDR
+            #lw      $s0, 0($t0)             # s0 is the KBD_ADDR
+            lui     $s0, 0x3000             # s0 is the keyboard addr
             lw      $s1, 0($s0)             # s1 is the comparator
             # Main loop
 wait_kbd:
@@ -156,15 +159,19 @@ wait_kbd:
             beq     $s1, $s2, wait_kbd
             add     $s1, $zero, $s2         # saves the old keyboard value
             srl     $s2, $s2, 24            # s2 is the ASCii code
-            add     $a0, $zero, $s2         # pass ASCii code to function
-            jal     check_enter
-            bne     $v0, $zero, wait_kbd    # v0 == 0: not enter
-            add     $a0, $zero, $s2         # pass ASCii code to function
-            jal     check_backspace
-            bne     $v0, $zero, wait_kbd    # v0 == 0: not backspace
-            add     $a0, $zero, $s2         # pass ASCii code to function
-            jal     print_char
-            j       main                    # dead loop
+            lui     $t0, 0x2000             # t0 is the vga base addr
+            add     $t0, $t0, $s5           # s5 is the actual addr to write
+            sw      $s2, 0($t0)             # write to VGA
+            addi    $s5, $s5, 4             # move the cursor
+            #add     $a0, $zero, $s2         # pass ASCii code to function
+            #jal     check_enter
+            #bne     $v0, $zero, wait_kbd    # v0 == 0: not enter
+            #add     $a0, $zero, $s2         # pass ASCii code to function
+            #jal     check_backspace
+            #bne     $v0, $zero, wait_kbd    # v0 == 0: not backspace
+            #add     $a0, $zero, $s2         # pass ASCii code to function
+            #jal     print_char
+            j       wait_kbd                 # dead loop
 
 .data 0x10000000
 
