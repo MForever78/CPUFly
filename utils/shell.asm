@@ -106,10 +106,13 @@ check_enter_return:
             # Function: check if a0 is backspace
 check_backspace:
             add     $t0, $zero, $a0
+            add     $a0, $zero, $ra
+            jal     push                    # save return address
             addi    $t1, $zero, 8
             bne     $t0, $t1, not_backspace
             addi    $t1, $zero, 28          # can't delete shell hinter
             beq     $s6, $t1, is_backspace  # skip it
+            jal     clear_cursor
             addi    $s6, $s6, -4
             addi    $s5, $s5, -4
             addi    $t0, $zero, 32          # t0 is the space char used to empty the last char
@@ -117,6 +120,7 @@ check_backspace:
             lw      $t1, 0($t1)             # t1 is the vram base addr
             add     $t1, $t1, $s5           # t1 is the to be written addr
             sw      $t0, 0($t1)             # write the space to vram
+            jal     print_cursor
 is_backspace:
             addi    $v0, $zero, 1
             j       check_backspace_return
@@ -124,6 +128,10 @@ not_backspace:
             add     $v0, $zero ,$zero
             j       check_backspace_return
 check_backspace_return:
+            add     $t0, $zero, $v0         # save return value to temp reg
+            jal     pop
+            add     $ra, $zero, $a0         # pop return addr
+            add     $v0, $zero, $t0         # give back return value
             jr      $ra
 
             # Function: print single char
