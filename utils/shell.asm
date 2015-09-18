@@ -164,7 +164,7 @@ wait_kbd:
             bne     $v0, $zero, wait_kbd    # v0 == 0: not backspace
             add     $a0, $zero, $s2         # pass ASCii code to function
             jal     print_char
-            j       main                    # dead loop
+            j       wait_kbd                # dead loop
 
 .data 0x10000000
 
