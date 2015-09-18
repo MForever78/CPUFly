@@ -277,6 +277,18 @@ check_clear_return:
             add     $v0, $zero, $t0         # give back return value
             jr      $ra
 
+undefined_command:
+            add     $a0, $zero, $ra
+            jal     push                    # save return address
+            addi    $s5, $s5, 320
+            sub     $s5, $s5, $s6           # move cursor to the very begining
+            add     $s6, $zero, $zero       # reset line counter
+            la      $a0, undefined_CMD
+            jal     print
+            jal     pop
+            add     $ra, $zero, $v0
+            jr      $ra
+
 main:
             # System init
             jal     print_hinter
@@ -310,3 +322,4 @@ KBD_ADDR:       .word 0x30000000
 CNT_ADDR:       .word 0x40000000
 shell_hinter:   .asciiz "MFsh > "
 clear_CMD:      .asciiz "clear"
+undefined_CMD:  .asciiz "Undefined command"
