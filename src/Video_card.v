@@ -19,7 +19,7 @@ module Video_card(clk, reset, x_ptr, y_ptr, color, WE, DAT_I, DAT_O, STB, ACK, A
     wire [11: 0] Addr;
     wire [9: 0] x, y;
 
-    reg [15: 0] mem [0: 4799];
+    reg [15: 0] mem [0: 2399];
 
     //initial begin
     //    mem[0] = 16'h004d;
@@ -38,9 +38,10 @@ module Video_card(clk, reset, x_ptr, y_ptr, color, WE, DAT_I, DAT_O, STB, ACK, A
 
     always @(posedge clk) begin
         // CPU wants to write
-        if (STB & WE) begin
-            mem[ADDR] <= DAT_I;
+        if (STB) begin
             ACK <= 1;
+            if (WE)
+                mem[ADDR] <= DAT_I;
         end else begin
             ACK <= 0;
         end

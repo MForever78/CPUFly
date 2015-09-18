@@ -16,7 +16,7 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
         cnt <= cnt + 1;
     end
     
-    wire sclk = cnt[2];
+    wire sclk = cnt[4];
 
     // ===========
     // Wishbone IO
