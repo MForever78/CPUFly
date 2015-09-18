@@ -61,7 +61,6 @@ print_hinter:
             add     $a0, $zero, $ra
             jal     push                    # save return address
             la      $a0, shell_hinter       # load shell hinter string address
-            add     $a1, $zero, $s5         # pass global cursor pointer
             jal     print
             jal     pop
             add     $ra, $zero, $v0         # pop return address
@@ -85,6 +84,7 @@ check_enter:
             jal     push                    # save s0 for later use
             addi    $t1, $zero, 10
             bne     $t0, $t1, not_enter
+            jal     clear_cursor
             addi    $s5, $s5, 320           # move cursor down one line
             sub     $s5, $s5, $s6           # move the cursor to the very begining
             add     $s6, $zero, $zero       # clear the line counter
@@ -153,6 +153,14 @@ print_cursor:
             addi    $t1, $zero, 0xdb        # block ascii code
             sw      $t1, 0($t0)             # write cursor to current addr
             jr      $ra                     # doesn't need move cursor
+            # Function: clear cursor block
+clear_cursor:
+            la      $t0, VGA_ADDR
+            lw      $t0, 0($t0)
+            add     $t0, $t0, $s5
+            addi    $t1, $zero, 0x20        # space ascii code
+            sw      $t1, 0($t0)
+            jr      $ra
 main:
             # System init
             jal     print_hinter
