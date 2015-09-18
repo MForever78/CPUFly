@@ -225,9 +225,9 @@ compare_return:
 check_command:
             add     $a0, $zero, $ra
             jal     push                    # save return address
-            jal     check_clear
-            addi    $t0, $zero, 0
-            bne     $v0, $t0, check_command_return  # v0 != 0: is clear
+            #jal     check_clear
+            #addi    $t0, $zero, 0
+            #bne     $v0, $t0, check_command_return  # v0 != 0: is clear
             jal     undefined_command
             j       check_command_return
 check_command_return:
@@ -319,6 +319,9 @@ STK_ADDR:       .word 0x10003000
 VGA_ADDR:       .word 0x20000000
 KBD_ADDR:       .word 0x30000000
 CNT_ADDR:       .word 0x40000000
+.align 2
 shell_hinter:   .asciiz "MFsh > "
+.align 2
 clear_CMD:      .asciiz "clear"
+.align 2
 undefined_CMD:  .asciiz "Undefined command"
