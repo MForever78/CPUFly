@@ -19,18 +19,18 @@ module Video_card(clk, reset, x_ptr, y_ptr, color, DAT_I, STB, ACK, ADDR);
 
     reg [15: 0] mem [0: 4799];
 
-    initial begin
-        mem[0] = 16'h004d;
-        mem[1] = 16'h0046;
-        mem[2] = 16'h006f;
-        mem[3] = 16'h0072;
-        mem[4] = 16'h0065;
-        mem[5] = 16'h0076;
-        mem[6] = 16'h0065;
-        mem[7] = 16'h0072;
-        mem[8] = 16'h0037;
-        mem[9] = 16'h0038;
-    end
+    //initial begin
+    //    mem[0] = 16'h004d;
+    //    mem[1] = 16'h0046;
+    //    mem[2] = 16'h006f;
+    //    mem[3] = 16'h0072;
+    //    mem[4] = 16'h0065;
+    //    mem[5] = 16'h0076;
+    //    mem[6] = 16'h0065;
+    //    mem[7] = 16'h0072;
+    //    mem[8] = 16'h0037;
+    //    mem[9] = 16'h0038;
+    //end
 
     integer i;
 

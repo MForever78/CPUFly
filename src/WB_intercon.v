@@ -32,7 +32,7 @@ module WB_intercon(master_STB, master_DAT_I, master_DAT_O, master_ACK, master_WE
     assign slaves_DAT[15] = slave_DAT_I[511: 480]; 
 
     assign master_DAT_O = slaves_DAT[master_ADDR[31: 28]];
-    assign slave_ADDR = master_ADDR;
+    assign slave_ADDR = {4'b0, master_ADDR[27: 0]};
 
     always @* begin
         slave_STB = 0;

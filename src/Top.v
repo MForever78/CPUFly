@@ -9,6 +9,14 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
     output [1: 0] VGA_B;
     output hsync, vsync;
     output [7: 0] LED;
+    
+    // slow clock down
+    reg [31: 0] cnt = 0;
+    always @(posedge clk) begin
+        cnt <= cnt + 1;
+    end
+    
+    wire sclk = cnt[2];
 
     // ===========
     // Wishbone IO
@@ -27,8 +35,8 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
     wire Keyboard_ACK, VGA_ACK, seven_seg_ACK, Ram_ACK, Counter_ACK;
     wire [31: 0] Keyboard_DAT_O, VGA_DAT_O, seven_seg_DAT_O, Ram_DAT_O, Counter_DAT_O;
 
-    wire Ram_STB = slave_STB[0];
-    wire seven_seg_STB = slave_STB[1];
+    wire Ram_STB = slave_STB[1];
+    wire seven_seg_STB = slave_STB[0];
     wire VGA_STB = slave_STB[2];
     wire Keyboard_STB = slave_STB[3];
     wire Counter_STB = slave_STB[4];
@@ -47,7 +55,7 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
     );
 
     CPU cpu(
-        .clk(clk),
+        .clk(sclk),
         .reset(reset),
         .inst(inst),
         .Data_I(CPU_Data_I),
@@ -66,8 +74,8 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
     // 3: Keyboard
     // 4: Counter
 
-    assign slave_ACK = {10'b0,Counter_ACK, Keyboard_ACK, VGA_ACK, seven_seg_ACK, Ram_ACK};
-    assign slave_DAT_O = {320'b0, Counter_DAT_O, Keyboard_DAT_O, VGA_DAT_O, seven_seg_DAT_O, Ram_DAT_O};
+    assign slave_ACK = {10'b0,Counter_ACK, Keyboard_ACK, VGA_ACK, Ram_ACK, seven_seg_ACK};
+    assign slave_DAT_O = {320'b0, Counter_DAT_O, Keyboard_DAT_O, VGA_DAT_O, Ram_DAT_O, seven_seg_DAT_O};
 
     WB_intercon intercon(
         .master_STB(CPU_STB),
@@ -90,7 +98,7 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
     // ==============
     
     Ram_driver ram_driver(
-        .clk(clk),
+        .clk(sclk),
         .Ram_STB(Ram_STB),
         .Ram_ACK(Ram_ACK)
     );
@@ -99,7 +107,7 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
         .clka(clk),
         .addra(slave_ADDR >> 2),
         .dina(slave_DAT_I),
-        .wea(slave_WE),
+        .wea(slave_WE & Ram_STB),
         .douta(Ram_DAT_O)
     );
     
@@ -107,9 +115,11 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
     Seven_seg seven_seg(
         .clk(clk),
         .reset(reset),
-        .DAT_I(slave_DAT_I),
+        //.DAT_I(slave_DAT_I),
+        .DAT_I(pc),
         .DAT_O(seven_seg_DAT_O),
-        .STB(seven_seg_STB),
+        //.STB(seven_seg_STB),
+        .STB(1),
         .ACK(seven_seg_ACK),
         .WE(slave_WE),
         .Segment(Segment),
@@ -132,7 +142,7 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
     wire [7: 0] color;
 
     Video_card video_card(
-        .clk(clk),
+        .clk(sclk),
         .reset(reset),
         .x_ptr(x_ptr),
         .y_ptr(y_ptr),

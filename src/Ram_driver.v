@@ -3,10 +3,19 @@ module Ram_driver(clk, Ram_STB, Ram_ACK);
     input Ram_STB;
     output reg Ram_ACK;
 
-    reg old_STB;
+    reg [5: 0] cnt = 0;
     always @(posedge clk) begin
-        old_STB <= Ram_STB;
-        if (old_STB && Ram_STB) Ram_ACK <= 1;
-        else Ram_ACK <= 0;
+        if (Ram_STB) begin
+            if (cnt == 2) begin
+                cnt <= 0;
+                Ram_ACK <= 1;
+            end else begin
+                cnt <= cnt + 1;
+                Ram_ACK <= 0;
+            end
+        end else begin
+            cnt <= 0;
+            Ram_ACK <= 0;
+        end
     end
 endmodule
