@@ -148,6 +148,8 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
         .y_ptr(y_ptr),
         .color(color),
         .DAT_I(slave_DAT_I),
+        .DAT_O(VGA_DAT_O),
+        .WE(slave_WE),
         .STB(VGA_STB),
         .ACK(VGA_ACK),
         .ADDR(slave_ADDR >> 2)
