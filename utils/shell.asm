@@ -144,9 +144,19 @@ print_char:
             j       print_char_end
 print_char_end:
             jr      $ra
+
+            # Function: print cursor block
+print_cursor:
+            la      $t0, VGA_ADDR
+            lw      $t0, 0($t0)
+            add     $t0, $t0, $s5           # t0 is the vram addr
+            addi    $t1, $zero, 0xdb        # block ascii code
+            sw      $t1, 0($t0)             # write cursor to current addr
+            jr      $ra                     # doesn't need move cursor
 main:
             # System init
             jal     print_hinter
+            jal     print_cursor
             la      $t0, KBD_ADDR
             lw      $s0, 0($t0)             # s0 is the KBD_ADDR
             lw      $s1, 0($s0)             # s1 is the comparator
@@ -164,6 +174,7 @@ wait_kbd:
             bne     $v0, $zero, wait_kbd    # v0 == 0: not backspace
             add     $a0, $zero, $s2         # pass ASCii code to function
             jal     print_char
+            jal     print_cursor
             j       wait_kbd                # dead loop
 
 .data 0x10000000
