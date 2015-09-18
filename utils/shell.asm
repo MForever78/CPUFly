@@ -186,7 +186,6 @@ compare_loop:
             lw      $t4, 0($t1)             # t4 is the string word
             andi    $t5, $t4, 0xff          # get char ascii code
             beq     $t5, $zero, equal       # string always finish first
-            beq     $t5, $zero,
             srl     $t4, $t4, 8
             bne     $t3, $t5, not_equal
             addi    $t0, $t0, 4             # move cursor forward
@@ -245,7 +244,7 @@ check_clear:
             jal     push
             add     $a0, $zero, $s1
             jal     push
-            add     $a0, clear_CMD          # pass the clear command address to function
+            la      $a0, clear_CMD          # pass the clear command address to function
             jal     compare
             beq     $v0, $zero, not_clear   # v0 == 0: not clear
             add     $s0, $zero, $zero       # s0 is the loop variable
