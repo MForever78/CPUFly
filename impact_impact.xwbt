@@ -1,0 +1,8 @@
+INTSTYLE=impact
+INFILE=E:\Seafile\ISE\CPUFly\impact.xsl
+OUTFILE=E:\Seafile\ISE\CPUFly\impact.xsl
+FAMILY=Single
+PART=Single
+WORKINGDIR=E:\Seafile\ISE\CPUFly
+LICENSE=iMPACT
+USER_INFO=iMPACT
