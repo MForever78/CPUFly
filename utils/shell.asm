@@ -182,34 +182,20 @@ compare:
             add     $t2, $zero, $zero       # t2 is the loop variable
 compare_loop:
             add     $t1, $t1, $t2           # t1 is the current word addr of the string
-            lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
             lw      $t4, 0($t1)             # t4 is the string word
-            andi    $t5, $t4, 0xff          # get char ascii code
+            add     $t6, $zero, $zero       # t6 is the convert loop variable
+            addi    $t7, $zero, 4           # t7 is the convert loop limit
+compare_convert_loop:
+            beq     $t6, $t7, compare_convert_loop_done
+            lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
+            andi    $t5, $t4, 0xff          # get char ascii code byte
             beq     $t5, $zero, equal       # string always finish first
             srl     $t4, $t4, 8
             bne     $t3, $t5, not_equal
             addi    $t0, $t0, 4             # move cursor forward
-            lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
-            lw      $t4, 0($t1)             # t4 is the string word
-            andi    $t5, $t4, 0xff          # get char ascii code
-            beq     $t5, $zero, equal       # string always finish first
-            srl     $t4, $t4, 8
-            bne     $t3, $t5, not_equal
-            addi    $t0, $t0, 4             # move cursor forward
-            lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
-            lw      $t4, 0($t1)             # t4 is the string word
-            andi    $t5, $t4, 0xff          # get char ascii code
-            beq     $t5, $zero, equal       # string always finish first
-            srl     $t4, $t4, 8
-            bne     $t3, $t5, not_equal
-            addi    $t0, $t0, 4             # move cursor forward
-            lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
-            lw      $t4, 0($t1)             # t4 is the string word
-            andi    $t5, $t4, 0xff          # get char ascii code
-            beq     $t5, $zero, equal       # string always finish first
-            srl     $t4, $t4, 8
-            bne     $t3, $t5, not_equal
-            addi    $t0, $t0, 4             # move cursor forward
+            addi    $t6, $t6, 1
+            j       compare_convert_loop
+compare_convert_loop_done:
             addi    $t2, $t2, 4             # move string addr forward
             j       compare_loop
 equal:
@@ -225,9 +211,9 @@ compare_return:
 check_command:
             add     $a0, $zero, $ra
             jal     push                    # save return address
-            #jal     check_clear
-            #addi    $t0, $zero, 0
-            #bne     $v0, $t0, check_command_return  # v0 != 0: is clear
+            jal     check_clear
+            addi    $t0, $zero, 0
+            bne     $v0, $t0, check_command_return  # v0 != 0: is clear
             jal     undefined_command
             j       check_command_return
 check_command_return:
@@ -253,7 +239,7 @@ check_clear:
             add     $s6, $zero, $zero       # reset line counter
 clear_loop:
             beq     $s0, $s1, clear_done
-            addi    $a0, $zero, 0x20        # space ascii code
+            addi    $a0, $zero, 0           # null ascii code
             jal     print_char
             addi    $s0, $s0, 1
             j       clear_loop
