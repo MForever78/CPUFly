@@ -84,12 +84,6 @@ check_enter:
             jal     push                    # save s0 for later use
             addi    $t1, $zero, 10
             bne     $t0, $t1, not_enter
-            jal     clear_cursor
-            jal     check_command
-            addi    $s5, $s5, 320           # move cursor down one line
-            sub     $s5, $s5, $s6           # move the cursor to the very begining
-            add     $s6, $zero, $zero       # clear the line counter
-            jal     print_hinter
             addi    $s0, $zero, 1           # tell caller true
             j       check_enter_return
 not_enter:
@@ -219,6 +213,9 @@ check_command:
             addi    $t0, $zero, 0
             bne     $v0, $t0, check_command_return
             jal     check_master
+            addi    $t0, $zero, 0
+            bne     $v0, $t0, check_command_return
+            jal     check_calc
             addi    $t0, $zero, 0
             bne     $v0, $t0, check_command_return
             jal     undefined_command
@@ -425,6 +422,110 @@ master_wait_kbd:
             add     $ra, $zero, $v0
             jr      $ra
 
+check_calc:
+            add     $a0, $zero, $ra         # save return address
+            jal     push
+            la      $a0, calc_CMD           # pass the clear command address to function
+            jal     compare
+            beq     $v0, $zero, not_calc    # v0 == 0: not clear
+            jal     execute_calc
+            addi    $v0, $zero, 1
+            j       check_calc_return
+not_calc:
+            add     $v0, $zero, $zero
+            j       check_calc_return
+check_calc_return:
+            add     $t0, $zero, $v0         # save return value to temp reg
+            jal     pop
+            add     $ra, $zero, $v0
+            add     $v0, $zero, $t0         # give back return value
+            jr      $ra
+
+execute_calc:
+            add     $a0, $zero, $ra         # save return address
+            jal     push
+            add     $a0, $zero, $s0
+            jal     push
+            add     $a0, $zero, $s1
+            jal     push
+            add     $a0, $zero, $s2
+            jal     push
+            jal     print_enter
+            jal     print_calc_hinter
+            jal     print_cursor
+            la      $t0, KBD_ADDR
+            lw      $s0, 0($t0)             # s0 is the KBD_ADDR
+            lw      $s1, 0($s0)             # s1 is the comparator
+            # clac main loop
+calc_wait_kbd:
+            lw      $s2, 0($s0)             # s2 is the current keyboard value
+            beq     $s1, $s2, calc_wait_kbd
+            add     $s1, $zero, $s2         # saves the old keyboard value
+            srl     $s2, $s2, 24            # s2 is the ASCii code
+            add     $a0, $zero, $s2         # pass ASCii code to function
+            jal     check_enter
+            jal     clear_cursor
+            jal     print_enter
+            bne     $v0, $zero, calculate   # v0 == 0: not enter
+            add     $a0, $zero, $s2         # pass ASCii code to function
+            jal     check_backspace
+            bne     $v0, $zero, calc_wait_kbd    # v0 == 0: not backspace
+            add     $a0, $zero, $s2         # pass ASCii code to function
+            jal     print_char
+            jal     print_cursor
+            j       calc_wait_kbd           # dead loop
+
+execute_calc_return:
+            jal     pop
+            add     $s2, $zero, $v0
+            jal     pop
+            add     $s1, $zero, $v0
+            jal     pop
+            add     $s0, $zero, $v0
+            jal     pop
+            add     $ra, $zero, $v0
+            jal     $ra
+
+calculate:
+            add     $a0, $zero, $ra
+            jal     push                    # save return address
+            jal     check_exit
+            bne     $v0, $zero, exit_calc
+            add     $a0, $zero, $s0
+            jal     push
+            add     $a0, $zero, $s1
+            jal     push
+            add     $a0, $zero, $s2
+            jal     push
+            la      $t0, VGA_ADDR
+            lw      $t0, 0($t0)
+            add     $t0, $t0, $s5
+            sub     $t0, $t0, $s6
+            addi    $s0, $t0, 28            # s0 is the base expression addr
+            add     $s1, $zero, $zero       # s1 is the loop variable
+calculate_loop:
+            beq     $s1, $s6, do_calculate
+            add     $t0, $s0, $s1           # t0 is the current expression addr
+            lw      $s2, 0($t0)             # s2 is the ascii code
+            andi    $s2, $s2, 0xff
+            add     $a0, $zero, $s2
+            jal     check_number
+            bne     $v0, $zero, is_number
+            add     $a0, $zero, $s2
+            jal     check_alphabet
+            bne     $v0, $zero, is_alphabet
+            add     $a0, $zero, $s2
+            jal     check_plus
+            bne     $v0, $zero, is_plus
+            add     $a0, $zero, $s2
+            jal     check_minus
+            bne     $v0, $zero, is_minus
+
+
+exit_calc:
+            jal     pop
+            j       execute_calc_return
+
 undefined_command:
             add     $a0, $zero, $ra
             jal     push                    # save return address
@@ -532,7 +633,16 @@ wait_kbd:
             srl     $s2, $s2, 24            # s2 is the ASCii code
             add     $a0, $zero, $s2         # pass ASCii code to function
             jal     check_enter
-            bne     $v0, $zero, wait_kbd    # v0 == 0: not enter
+            beq     $v0, $zero, test_backspace    # v0 == 0: not enter
+            jal     clear_cursor
+            jal     check_command
+            addi    $s5, $s5, 320           # move cursor down one line
+            sub     $s5, $s5, $s6           # move the cursor to the very begining
+            add     $s6, $zero, $zero       # clear the line counter
+            jal     print_hinter
+            jal     print_cursor
+            j       wait_kbd
+test_backspace:
             add     $a0, $zero, $s2         # pass ASCii code to function
             jal     check_backspace
             bne     $v0, $zero, wait_kbd    # v0 == 0: not backspace
@@ -551,13 +661,49 @@ CNT_ADDR:       .word 0x40000000
 .align 2
 shell_hinter:   .asciiz "MFsh > "
 .align 2
+calc_hinter:    .asciiz "calc > "
+.align 2
 clear_CMD:      .asciiz "clear"
 .align 2
 reboot_CMD:     .asciiz "reboot"
 .align 2
 master_CMD:     .asciiz "master"
 .align 2
+calc_CMD:       .asciiz "calc"
+.align 2
 undefined_CMD:  .asciiz "Undefined command"
+.align 2
+number:         .ascii "0"
+.align 2
+                .ascii "1"
+.align 2
+                .ascii "2"
+.align 2
+                .ascii "3"
+.align 2
+                .ascii "4"
+.align 2
+                .ascii "5"
+.align 2
+                .ascii "6"
+.align 2
+                .ascii "7"
+.align 2
+                .ascii "8"
+.align 2
+                .ascii "9"
+.align 2
+alphabet:       .ascii "a"
+.align 2
+                .ascii "b"
+.align 2
+                .ascii "c"
+.align 2
+                .ascii "d"
+.align 2
+                .ascii "e"
+.align 2
+                .ascii "f"
 .align 2
 welcome_00:       .asciiz "          .         .                                "
 .align 2
