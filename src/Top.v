@@ -11,12 +11,12 @@ module Top(clk, reset, Segment, AN, VGA_R, VGA_G, VGA_B, hsync, vsync, kbd_clk, 
     output [7: 0] LED;
     
     // slow clock down
-    reg [31: 0] cnt = 0;
+    reg [5: 0] cnt = 0;
     always @(posedge clk) begin
         cnt <= cnt + 1;
     end
     
-    wire sclk = cnt[4];
+    wire sclk = cnt[5];
 
     // ===========
     // Wishbone IO

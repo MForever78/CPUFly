@@ -27,14 +27,19 @@
 *******************************************************************************/
 
 /*******************************************************************************
-*     Generated from core with identifier: xilinx.com:ip:dist_mem_gen:7.2      *
+*     Generated from core with identifier: xilinx.com:ip:blk_mem_gen:7.3       *
 *                                                                              *
-*     Rev 1. The LogiCORE Xilinx Distributed Memory Generator creates area     *
-*     and performance optimized ROM blocks, single and dual port               *
-*     distributed memories, and SRL16-based memories for Xilinx FPGAs. The     *
-*     core supersedes the previously released LogiCORE Distributed Memory      *
-*     core. Use this core in all new designs for supported families            *
-*     wherever a distributed memory is required.                               *
+*     The Xilinx LogiCORE IP Block Memory Generator replaces the Dual Port     *
+*     Block Memory and Single Port Block Memory LogiCOREs, but is not a        *
+*     direct drop-in replacement.  It should be used in all new Xilinx         *
+*     designs. The core supports RAM and ROM functions over a wide range of    *
+*     widths and depths. Use this core to generate block memories with         *
+*     symmetric or asymmetric read and write port widths, as well as cores     *
+*     which can perform simultaneous write operations to separate              *
+*     locations, and simultaneous read operations from the same location.      *
+*     For more information on differences in interface and feature support     *
+*     between this core and the Dual Port Block Memory and Single Port         *
+*     Block Memory LogiCOREs, please consult the data sheet.                   *
 *******************************************************************************/
 
 // The following must be inserted into your Verilog file for this
@@ -42,14 +47,17 @@
 // (in parentheses) to your own signal names.
 
 //----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
-Instruction_Memory your_instance_name (
-  .a(a), // input [11 : 0] a
-  .spo(spo) // output [31 : 0] spo
+Ram your_instance_name (
+  .clka(clka), // input clka
+  .wea(wea), // input [0 : 0] wea
+  .addra(addra), // input [13 : 0] addra
+  .dina(dina), // input [31 : 0] dina
+  .douta(douta) // output [31 : 0] douta
 );
 // INST_TAG_END ------ End INSTANTIATION Template ---------
 
-// You must compile the wrapper file Instruction_Memory.v when simulating
-// the core, Instruction_Memory. When compiling the wrapper file, be sure to
+// You must compile the wrapper file Ram.v when simulating
+// the core, Ram. When compiling the wrapper file, be sure to
 // reference the XilinxCoreLib Verilog simulation library. For detailed
 // instructions, please refer to the "CORE Generator Help".
 

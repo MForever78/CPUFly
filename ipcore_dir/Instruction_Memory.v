@@ -41,15 +41,15 @@ module Instruction_Memory(
   spo
 );
 
-input [12 : 0] a;
+input [11 : 0] a;
 output [31 : 0] spo;
 
 // synthesis translate_off
 
   DIST_MEM_GEN_V7_2 #(
-    .C_ADDR_WIDTH(13),
+    .C_ADDR_WIDTH(12),
     .C_DEFAULT_DATA("0"),
-    .C_DEPTH(8192),
+    .C_DEPTH(4096),
     .C_FAMILY("spartan6"),
     .C_HAS_CLK(0),
     .C_HAS_D(0),
