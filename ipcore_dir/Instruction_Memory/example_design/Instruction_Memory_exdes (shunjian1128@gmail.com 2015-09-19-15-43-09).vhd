@@ -2,7 +2,7 @@
 
 --------------------------------------------------------------------------------
 --
--- Distributed Memory Generator v6.3 Core - Top-level core wrapper
+-- Distributed Memory Generator Core - Top-level core wrapper
 --
 --------------------------------------------------------------------------------
 --
@@ -75,25 +75,9 @@ use unisim.vcomponents.all;
 --------------------------------------------------------------------------------
 entity Instruction_Memory_exdes is
   PORT (
-      A          : IN  STD_LOGIC_VECTOR(13-1-(4*0*boolean'pos(13>4)) downto 0)
-                 := (OTHERS => '0');
-      D          : IN  STD_LOGIC_VECTOR(32-1 downto 0)                := (OTHERS => '0');
-      DPRA       : IN  STD_LOGIC_VECTOR(13-1 downto 0)           := (OTHERS => '0');
-      SPRA       : IN  STD_LOGIC_VECTOR(13-1 downto 0)           := (OTHERS => '0');
-      CLK        : IN  STD_LOGIC                                                := '0';
-      WE         : IN  STD_LOGIC                                                := '0';
-      I_CE       : IN  STD_LOGIC                                                := '1';
-      QSPO_CE    : IN  STD_LOGIC                                                := '1';
-      QDPO_CE    : IN  STD_LOGIC                                                := '1';
-      QDPO_CLK   : IN  STD_LOGIC                                                := '0';
-      QSPO_RST   : IN  STD_LOGIC                                                := '0';
-      QDPO_RST   : IN  STD_LOGIC                                                := '0';
-      QSPO_SRST  : IN  STD_LOGIC                                                := '0';
-      QDPO_SRST  : IN  STD_LOGIC                                                := '0';
-      SPO        : OUT STD_LOGIC_VECTOR(32-1 downto 0);
-      DPO        : OUT STD_LOGIC_VECTOR(32-1 downto 0);
-      QSPO       : OUT STD_LOGIC_VECTOR(32-1 downto 0);
-      QDPO       : OUT STD_LOGIC_VECTOR(32-1 downto 0)
+    SPO        : OUT STD_LOGIC_VECTOR(32-1 downto 0);
+    A          : IN  STD_LOGIC_VECTOR(14-1-(4*0*boolean'pos(14>4)) downto 0)
+                 := (OTHERS => '0')
       );
 
 end Instruction_Memory_exdes;
@@ -106,8 +90,8 @@ architecture xilinx of Instruction_Memory_exdes is
   component Instruction_Memory is
   PORT (
 
-      SPO                     : OUT STD_LOGIC_VECTOR(32-1 downto 0);
-      A                       : IN  STD_LOGIC_VECTOR(13-1-(4*0*boolean'pos(13>4)) downto 0)
+    SPO                     : OUT STD_LOGIC_VECTOR(32-1 downto 0);
+    A                       : IN  STD_LOGIC_VECTOR(14-1-(4*0*boolean'pos(14>4)) downto 0)
                               := (OTHERS => '0')
 
 );

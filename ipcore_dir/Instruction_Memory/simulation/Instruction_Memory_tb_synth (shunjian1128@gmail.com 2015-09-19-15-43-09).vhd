@@ -100,7 +100,7 @@ ARCHITECTURE Instruction_Memory_synth_ARCH OF Instruction_Memory_tb_synth IS
 COMPONENT Instruction_Memory_exdes
   PORT (
     SPO        : OUT STD_LOGIC_VECTOR(32-1 downto 0);
-    A          : IN  STD_LOGIC_VECTOR(13-1-(4*0*boolean'pos(13>4)) downto 0)
+    A          : IN  STD_LOGIC_VECTOR(14-1-(4*0*boolean'pos(14>4)) downto 0)
                  := (OTHERS => '0')
       );
 
@@ -117,8 +117,8 @@ END COMPONENT;
   SIGNAL RESET_SYNC_R2 : STD_LOGIC:='1';
   SIGNAL RESET_SYNC_R3 : STD_LOGIC:='1';
 
-  SIGNAL ADDR: STD_LOGIC_VECTOR(12 DOWNTO 0) := (OTHERS => '0');
-  SIGNAL ADDR_R: STD_LOGIC_VECTOR(12 DOWNTO 0) := (OTHERS => '0');
+  SIGNAL ADDR: STD_LOGIC_VECTOR(13 DOWNTO 0) := (OTHERS => '0');
+  SIGNAL ADDR_R: STD_LOGIC_VECTOR(13 DOWNTO 0) := (OTHERS => '0');
   SIGNAL SPO: STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
   SIGNAL SPO_R: STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
   SIGNAL ITER_R0 : STD_LOGIC := '0';

@@ -25,31 +25,82 @@
 *     (c) Copyright 1995-2015 Xilinx, Inc.                                     *
 *     All rights reserved.                                                     *
 *******************************************************************************/
-
-/*******************************************************************************
-*     Generated from core with identifier: xilinx.com:ip:dist_mem_gen:7.2      *
-*                                                                              *
-*     Rev 1. The LogiCORE Xilinx Distributed Memory Generator creates area     *
-*     and performance optimized ROM blocks, single and dual port               *
-*     distributed memories, and SRL16-based memories for Xilinx FPGAs. The     *
-*     core supersedes the previously released LogiCORE Distributed Memory      *
-*     core. Use this core in all new designs for supported families            *
-*     wherever a distributed memory is required.                               *
-*******************************************************************************/
-
-// The following must be inserted into your Verilog file for this
-// core to be instantiated. Change the instance name and port connections
-// (in parentheses) to your own signal names.
-
-//----------- Begin Cut here for INSTANTIATION Template ---// INST_TAG
-Instruction_Memory your_instance_name (
-  .a(a), // input [12 : 0] a
-  .spo(spo) // output [31 : 0] spo
-);
-// INST_TAG_END ------ End INSTANTIATION Template ---------
-
 // You must compile the wrapper file Instruction_Memory.v when simulating
 // the core, Instruction_Memory. When compiling the wrapper file, be sure to
 // reference the XilinxCoreLib Verilog simulation library. For detailed
 // instructions, please refer to the "CORE Generator Help".
 
+// The synthesis directives "translate_off/translate_on" specified below are
+// supported by Xilinx, Mentor Graphics and Synplicity synthesis
+// tools. Ensure they are correct for your synthesis tool(s).
+
+`timescale 1ns/1ps
+
+module Instruction_Memory(
+  a,
+  spo
+);
+
+input [13 : 0] a;
+output [31 : 0] spo;
+
+// synthesis translate_off
+
+  DIST_MEM_GEN_V7_2 #(
+    .C_ADDR_WIDTH(14),
+    .C_DEFAULT_DATA("0"),
+    .C_DEPTH(16384),
+    .C_FAMILY("spartan6"),
+    .C_HAS_CLK(0),
+    .C_HAS_D(0),
+    .C_HAS_DPO(0),
+    .C_HAS_DPRA(0),
+    .C_HAS_I_CE(0),
+    .C_HAS_QDPO(0),
+    .C_HAS_QDPO_CE(0),
+    .C_HAS_QDPO_CLK(0),
+    .C_HAS_QDPO_RST(0),
+    .C_HAS_QDPO_SRST(0),
+    .C_HAS_QSPO(0),
+    .C_HAS_QSPO_CE(0),
+    .C_HAS_QSPO_RST(0),
+    .C_HAS_QSPO_SRST(0),
+    .C_HAS_SPO(1),
+    .C_HAS_SPRA(0),
+    .C_HAS_WE(0),
+    .C_MEM_INIT_FILE("Instruction_Memory.mif"),
+    .C_MEM_TYPE(0),
+    .C_PARSER_TYPE(1),
+    .C_PIPELINE_STAGES(0),
+    .C_QCE_JOINED(0),
+    .C_QUALIFY_WE(0),
+    .C_READ_MIF(1),
+    .C_REG_A_D_INPUTS(0),
+    .C_REG_DPRA_INPUT(0),
+    .C_SYNC_ENABLE(1),
+    .C_WIDTH(32)
+  )
+  inst (
+    .A(a),
+    .SPO(spo),
+    .D(),
+    .DPRA(),
+    .SPRA(),
+    .CLK(),
+    .WE(),
+    .I_CE(),
+    .QSPO_CE(),
+    .QDPO_CE(),
+    .QDPO_CLK(),
+    .QSPO_RST(),
+    .QDPO_RST(),
+    .QSPO_SRST(),
+    .QDPO_SRST(),
+    .DPO(),
+    .QSPO(),
+    .QDPO()
+  );
+
+// synthesis translate_on
+
+endmodule
