@@ -215,6 +215,9 @@ check_command:
             jal     check_clear
             addi    $t0, $zero, 0
             bne     $v0, $t0, check_command_return  # v0 != 0: is clear
+            jal     check_reboot
+            addi    $t0, $zero, 0
+            bne     $v0, $t0, check_command_return
             jal     undefined_command
             j       check_command_return
 check_command_return:
@@ -227,13 +230,31 @@ check_command_return:
 check_clear:
             add     $a0, $zero, $ra         # save return address
             jal     push
+            la      $a0, clear_CMD          # pass the clear command address to function
+            jal     compare
+            beq     $v0, $zero, not_clear   # v0 == 0: not clear
+            jal     execute_clear
+            addi    $v0, $zero, 1
+            j       check_clear_return
+not_clear:
+            add     $v0, $zero, $zero
+            j       check_clear_return
+check_clear_return:
+            add     $t0, $zero, $v0         # save return value to temp reg
+
+            jal     pop
+            add     $ra, $zero, $v0
+            add     $v0, $zero, $t0         # give back return value
+            jr      $ra
+
+            # Function: execute clear command
+execute_clear:
+            add     $a0, $zero, $ra
+            jal     push
             add     $a0, $zero, $s0
             jal     push
             add     $a0, $zero, $s1
             jal     push
-            la      $a0, clear_CMD          # pass the clear command address to function
-            jal     compare
-            beq     $v0, $zero, not_clear   # v0 == 0: not clear
             add     $s0, $zero, $zero       # s0 is the loop variable
             addi    $s1, $zero, 2400        # s1 is the loop limit
             add     $s5, $zero, $zero       # reset cursor
@@ -247,21 +268,37 @@ clear_loop:
 clear_done:
             add     $s5, $zero, $zero       # reset cursor
             add     $s6, $zero, $zero       # reset line counter
-            addi    $v0, $zero, 1
-            j       check_clear_return
-not_clear:
-            add     $v0, $zero, $zero
-            j       check_clear_return
-check_clear_return:
-            add     $t0, $zero, $v0         # save return value to temp reg
             jal     pop
             add     $s1, $zero, $v0
             jal     pop
             add     $s0, $zero, $v0
             jal     pop
             add     $ra, $zero, $v0
+            jr      $ra
+
+check_reboot:
+            add     $a0, $zero, $ra         # save return address
+            jal     push
+            la      $a0, reboot_CMD         # pass the clear command address to function
+            jal     compare
+            beq     $v0, $zero, not_reboot  # v0 == 0: not clear
+            jal     execute_reboot
+            addi    $v0, $zero, 1
+            j       check_reboot_return
+not_reboot:
+            add     $v0, $zero, $zero
+            j       check_clear_return
+check_reboot_return:
+            add     $t0, $zero, $v0         # save return value to temp reg
+            jal     pop
+            add     $ra, $zero, $v0
             add     $v0, $zero, $t0         # give back return value
             jr      $ra
+
+execute_reboot:
+            jal     push
+            jal     execute_clear
+            j       start
 
 undefined_command:
             add     $a0, $zero, $ra
@@ -391,6 +428,10 @@ shell_hinter:   .asciiz "MFsh > "
 .align 2
 clear_CMD:      .asciiz "clear"
 .align 2
+reboot_CMD:     .asciiz "reboot"
+.align 2
+master_CMD:     .asciiz "mforever78"
+.align 2
 undefined_CMD:  .asciiz "Undefined command"
 .align 2
 welcome_00:       .asciiz "          .         .                                "
@@ -436,3 +477,62 @@ welcome_19:       .asciiz "8b   `8.`8888. 8 8888        8 8 8888         8 8888 
 welcome_20:       .asciiz "`8b.  ;8.`8888 8 8888        8 8 8888         8 8888         8 8888"
 .align 2
 welcome_21:       .asciiz " `Y8888P ,88P' 8 8888        8 8 888888888888 8 888888888888 8 888888888888"
+
+.align 2
+master_00:      .asciiz "*.(**,     *,(** ,.,****(#%#(,..       .,,//////****,**,.. "
+.align 2
+master_01:      .asciiz ",.#,.*     *,(**.(#%&&&&&&@@&&%%%(,.   ....,/////****/./.  "
+.align 2
+master_02:      .asciiz ",,(        ,,/*%%%&&&&&&@&&&&@@&&&%(..  */ ,./(/*******/   "
+.align 2
+master_03:      .asciiz "..         *(%&&&&@&&&&&&&&&&@&@&&&&%.  .*.*.**%#**...**.. "
+.align 2
+master_04:      .asciiz "          .&&&&&&&&&@&&&&&&&&&@&@&&&@&( /#.#///*#((((((*.  "
+.align 2
+master_05:      .asciiz "         .%&&&@&@&@&&&&&&&&%%&%&%&&&&&&%**,,(/(.((((#((/.  "
+.align 2
+master_06:      .asciiz "        .%&&&@@@@@(((%(***/(/*/(%&&@@**/,././/(((%.        "
+.align 2
+master_07:      .asciiz "        #&&@&@&@@#*,,.......,,.,,,*,*@@&&****,..,//(%%%/   "
+.align 2
+master_08:      .asciiz "   (#, .%&&@&&@&&*,,.................*&@&****,,,*,.***.,.. "
+.align 2
+master_09:      .asciiz "/***    %@@&@&@&/,,,/(####/*,,,,*(%&%#(&&(***,,,,,*,.,.,.  "
+.align 2
+master_10:      .asciiz "        .&@&&&&(,,,,,..,*/((/*/(##/*,,*&&*..**,,,,,,*,...  "
+.align 2
+master_11:      .asciiz ".#/*,**  /&&@&%(#/&@/#&&%%#/,%#&&&%(#,%**.,,/,,,,,,,,.     "
+.align 2
+master_12:      .asciiz "**.(,**  ,*#&&&,,,*(///(//,,.*./#*(((*. #..*.(%&&,,.       "
+.align 2
+master_13:      .asciiz ",(,/,*,  **,*/%*,......,,,,*....,*,,,..*/#,/(,,**///////   "
+.align 2
+master_14:      .asciiz ",/,/,*,   ,*/*,(*,.......*,....,,.,,....,*.,****///#&&&&   "
+.align 2
+master_15:      .asciiz "...        ,,,,,/,,,,,,*(,,(#(((#(**/,, ....,,,,,***/,     "
+.align 2
+master_16:      .asciiz "            .,,,*,,,**/**,...,,,,.,*//, .,,,*..*,,.#./,.   "
+.align 2
+master_17:      .asciiz "            ..#%*,,,***/(&*....,,(%***   **,,,,. ..,.,...  "
+.align 2
+master_18:      .asciiz "            ...,,*******,,,,*//**,,,*.   .*****,,,  ,,...  "
+.align 2
+master_19:      .asciiz "            ....*,/****,,..,*/((/,,,,    ..../****,,*..,.. "
+.align 2
+master_20:      .asciiz "/(((/,,      ...,,,//**,......,,,..,/..////////////(((##((/"
+.align 2
+master_21:      .asciiz "..          ... ,..,,*(#*,..,,,,,,,,*..**,*,,,,*/**    *,.*"
+.align 2
+master_22:      .asciiz "%%%%%%%.     .,......,,/(((###(,   ..          .           "
+.align 2
+master_23:      .asciiz "***%%%&,     .........,*////((*.           ............,,.."
+.align 2
+master_24:      .asciiz "#(//##*. ,...........,,**/////,  .**,,*.  */**..*%#,*/##.(."
+.align 2
+master_25:      .asciiz "%&@&&##&&%&&,....,,*,*****/*  , *.., .//,(##&@&&&(#*%&  .  "
+.align 2
+master_26:      .asciiz "(%(#(%%%%%%&&&&@(,.,,,,,*****,/## ,,,,.,/*..../....((.&(,.,"
+.align 2
+master_27:      .asciiz "((%####%%%%&&&&&&&&.....,,,,,.&@#*#,.(((/*....,..*..,./*%&&"
+.align 2
+master_28:      .asciiz "@@@@@@@&%%&%&&&&@@@&&(.........(@%#(/(((//...         /#%%#"
