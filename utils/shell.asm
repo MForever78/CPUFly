@@ -413,6 +413,14 @@ execute_master:
             la      $a0, master_28
             jal     print
             jal     print_enter
+
+            la      $t0, KBD_ADDR
+            lw      $t0, 0($t0)             # t0 is the KBD_ADDR
+            lw      $t1, 0($t0)             # t1 is the comparator
+master_wait_kbd:
+            lw      $t2, 0($t0)
+            beq     $t1, $t2, master_wait_kbd
+            jal     execute_clear
             jal     pop
             add     $ra, $zero, $v0
             jr      $ra
