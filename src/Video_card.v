@@ -47,7 +47,7 @@ module Video_card(clk, reset, x_ptr, y_ptr, color, WE, DAT_I, DAT_O, STB, ACK, A
         end
     end
 
-    assign DAT_O = mem[ADDR];
+    assign DAT_O = {16'b0, mem[ADDR]};
 
     assign x = x_ptr >> 3;
     assign y = y_ptr >> 4;
