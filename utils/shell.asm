@@ -218,6 +218,9 @@ check_command:
             jal     check_reboot
             addi    $t0, $zero, 0
             bne     $v0, $t0, check_command_return
+            jal     check_master
+            addi    $t0, $zero, 0
+            bne     $v0, $t0, check_command_return
             jal     undefined_command
             j       check_command_return
 check_command_return:
@@ -287,7 +290,7 @@ check_reboot:
             j       check_reboot_return
 not_reboot:
             add     $v0, $zero, $zero
-            j       check_clear_return
+            j       check_reboot_return
 check_reboot_return:
             add     $t0, $zero, $v0         # save return value to temp reg
             jal     pop
@@ -299,6 +302,120 @@ execute_reboot:
             jal     push
             jal     execute_clear
             j       start
+
+check_master:
+            add     $a0, $zero, $ra         # save return address
+            jal     push
+            la      $a0, master_CMD         # pass the clear command address to function
+            jal     compare
+            beq     $v0, $zero, not_master  # v0 == 0: not clear
+            jal     execute_master
+            addi    $v0, $zero, 1
+            j       check_master_return
+not_master:
+            add     $v0, $zero, $zero
+            j       check_master_return
+check_master_return:
+            add     $t0, $zero, $v0         # save return value to temp reg
+            jal     pop
+            add     $ra, $zero, $v0
+            add     $v0, $zero, $t0         # give back return value
+            jr      $ra
+
+execute_master:
+            add     $a0, $zero, $ra
+            jal     push
+            jal     execute_clear
+            la      $a0, master_00
+            jal     print
+            jal     print_enter
+            la      $a0, master_01
+            jal     print
+            jal     print_enter
+            la      $a0, master_02
+            jal     print
+            jal     print_enter
+            la      $a0, master_03
+            jal     print
+            jal     print_enter
+            la      $a0, master_04
+            jal     print
+            jal     print_enter
+            la      $a0, master_05
+            jal     print
+            jal     print_enter
+            la      $a0, master_06
+            jal     print
+            jal     print_enter
+            la      $a0, master_07
+            jal     print
+            jal     print_enter
+            la      $a0, master_08
+            jal     print
+            jal     print_enter
+            la      $a0, master_09
+            jal     print
+            jal     print_enter
+            la      $a0, master_10
+            jal     print
+            jal     print_enter
+            la      $a0, master_11
+            jal     print
+            jal     print_enter
+            la      $a0, master_12
+            jal     print
+            jal     print_enter
+            la      $a0, master_13
+            jal     print
+            jal     print_enter
+            la      $a0, master_14
+            jal     print
+            jal     print_enter
+            la      $a0, master_15
+            jal     print
+            jal     print_enter
+            la      $a0, master_16
+            jal     print
+            jal     print_enter
+            la      $a0, master_17
+            jal     print
+            jal     print_enter
+            la      $a0, master_18
+            jal     print
+            jal     print_enter
+            la      $a0, master_19
+            jal     print
+            jal     print_enter
+            la      $a0, master_20
+            jal     print
+            jal     print_enter
+            la      $a0, master_21
+            jal     print
+            jal     print_enter
+            la      $a0, master_22
+            jal     print
+            jal     print_enter
+            la      $a0, master_23
+            jal     print
+            jal     print_enter
+            la      $a0, master_24
+            jal     print
+            jal     print_enter
+            la      $a0, master_25
+            jal     print
+            jal     print_enter
+            la      $a0, master_26
+            jal     print
+            jal     print_enter
+            la      $a0, master_27
+            jal     print
+            jal     print_enter
+            la      $a0, master_28
+            jal     print
+            jal     print_enter
+            jal     pop
+            add     $ra, $zero, $v0
+            jr      $ra
 
 undefined_command:
             add     $a0, $zero, $ra
@@ -430,7 +547,7 @@ clear_CMD:      .asciiz "clear"
 .align 2
 reboot_CMD:     .asciiz "reboot"
 .align 2
-master_CMD:     .asciiz "mforever78"
+master_CMD:     .asciiz "master"
 .align 2
 undefined_CMD:  .asciiz "Undefined command"
 .align 2
