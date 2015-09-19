@@ -275,8 +275,88 @@ undefined_command:
             add     $ra, $zero, $v0
             jr      $ra
 
+print_enter:
+            addi    $s5, $s5, 320
+            sub     $s5, $s5, $s6
+            add     $s6, $zero, $zero
+            jr      $ra
+
+print_welcome:
+            add     $a0, $zero, $ra
+            jal     push
+            la      $a0, welcome_00
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_01
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_02
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_03
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_04
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_05
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_06
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_07
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_08
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_09
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_10
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_11
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_12
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_13
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_14
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_15
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_16
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_17
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_18
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_19
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_20
+            jal     print
+            jal     print_enter
+            la      $a0, welcome_21
+            jal     print
+            jal     print_enter
+            jal     pop
+            add     $ra, $zero, $v0
+            jr      $ra
+
 main:
             # System init
+            jal     print_welcome
             jal     print_hinter
             jal     print_cursor
             la      $t0, KBD_ADDR
@@ -312,3 +392,47 @@ shell_hinter:   .asciiz "MFsh > "
 clear_CMD:      .asciiz "clear"
 .align 2
 undefined_CMD:  .asciiz "Undefined command"
+.align 2
+welcome_00:       .asciiz "          .         .                                "
+.align 2
+welcome_01:       .asciiz "         ,8.       ,8.          8 8888888888         "
+.align 2
+welcome_02:       .asciiz "        ,888.     ,888.         8 8888               "
+.align 2
+welcome_03:       .asciiz "       .`8888.   .`8888.        8 8888               "
+.align 2
+welcome_04:       .asciiz "      ,8.`8888. ,8.`8888.       8 8888               "
+.align 2
+welcome_05:       .asciiz "     ,8'8.`8888,8^8.`8888.      8 888888888888       "
+.align 2
+welcome_06:       .asciiz "    ,8' `8.`8888' `8.`8888.     8 8888               "
+.align 2
+welcome_07:       .asciiz "   ,8'   `8.`88'   `8.`8888.    8 8888               "
+.align 2
+welcome_08:       .asciiz "  ,8'     `8.`'     `8.`8888.   8 8888               "
+.align 2
+welcome_09:       .asciiz " ,8'       `8        `8.`8888.  8 8888               "
+.align 2
+welcome_10:       .asciiz ",8'         `         `8.`8888. 8 8888               "
+.align 2
+welcome_11:       .asciiz "                                                     "
+.align 2
+welcome_12:       .asciiz "   d888888o.   8 8888        8 8 8888888888   8 8888         8 8888"
+.align 2
+welcome_13:       .asciiz " .`8888:' `88. 8 8888        8 8 8888         8 8888         8 8888"
+.align 2
+welcome_14:       .asciiz " 8.`8888.   Y8 8 8888        8 8 8888         8 8888         8 8888"
+.align 2
+welcome_15:       .asciiz " `8.`8888.     8 8888        8 8 8888         8 8888         8 8888"
+.align 2
+welcome_16:       .asciiz "  `8.`8888.    8 8888        8 8 888888888888 8 8888         8 8888"
+.align 2
+welcome_17:       .asciiz "   `8.`8888.   8 8888        8 8 8888         8 8888         8 8888"
+.align 2
+welcome_18:       .asciiz "    `8.`8888.  8 8888888888888 8 8888         8 8888         8 8888"
+.align 2
+welcome_19:       .asciiz "8b   `8.`8888. 8 8888        8 8 8888         8 8888         8 8888"
+.align 2
+welcome_20:       .asciiz "`8b.  ;8.`8888 8 8888        8 8 8888         8 8888         8 8888"
+.align 2
+welcome_21:       .asciiz " `Y8888P ,88P' 8 8888        8 8 888888888888 8 888888888888 8 888888888888"
