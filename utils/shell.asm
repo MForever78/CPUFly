@@ -177,7 +177,7 @@ compare:
             lw      $t0, 0($t0)             # t0 is the vram base addr
             add     $t0, $t0, $s5           # t0 is the current cursor addr
             sub     $t0, $t0, $s6           # t0 is the first char of current line
-            addi    $t0, $t0, 7             # skip shell hinter
+            addi    $t0, $t0, 28            # skip shell hinter
             add     $t1, $zero, $a0         # t1 is the string base addr
             add     $t2, $zero, $zero       # t2 is the loop variable
 compare_loop:
@@ -188,6 +188,7 @@ compare_loop:
 compare_convert_loop:
             beq     $t6, $t7, compare_convert_loop_done
             lw      $t3, 0($t0)             # t3 is the char ascii code on the screen
+            andi    $t3, $t3, 0xff          # get out of garbage prefix
             andi    $t5, $t4, 0xff          # get char ascii code byte
             beq     $t5, $zero, equal       # string always finish first
             srl     $t4, $t4, 8
